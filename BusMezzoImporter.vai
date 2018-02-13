@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<VisumAddInCollection Format="1.0.0">
+		<VisumAddIn>
+			<AddInID>BusMezzoImporter</AddInID>
+			<AddInName>Bus Mezzo Importer</AddInName>
+			<AddInPath></AddInPath>
+			<AddInParaDlgScript>BusMezzo.py</AddInParaDlgScript>
+			<AddInBodyScript>BusMezzo.py</AddInBodyScript>
+			<AddInOperation>true</AddInOperation>
+			<AddInAutoMenu>true</AddInAutoMenu>
+			<AddInAutoShowPara>true</AddInAutoShowPara>
+		</VisumAddIn>
+</VisumAddInCollection>
