@@ -138,7 +138,7 @@ def main(Visum):
     """
     Main importer call, applied as a sequence of procedures
     :param Visum: COM object of PTV Visum
-    :return: voidjj
+    :return: void
     """
     modify_network(Visum)
     add_UDAs(Visum)
