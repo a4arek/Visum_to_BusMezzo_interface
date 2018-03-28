@@ -31,7 +31,7 @@
 # - one connector per zone ONLY
 # - connectors pinned directly to the stopArea access nodes
 # - PuT: timetable coded (no headways)
-o0o0o0
+
 
 from fileWriter import *
 from verPreparator import *
