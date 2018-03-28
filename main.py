@@ -79,46 +79,46 @@ def adjust_UDAs(Visum):
     adjust_LineRoutes(Visum)
     logPrinter("adjust_LineRoutes(Visum) finished")
     adjust_TimeProfiles(Visum)
-    print "adjust_TimeProfiles(Visum) finished"
+    logPrinter("adjust_TimeProfiles(Visum) finished")
     adjust_VehicleJourneys(Visum)
-    print "adjust_VehicleJourneys(Visum) finished"
+    logPrinter("adjust_VehicleJourneys(Visum) finished")
     adjust_StopPoints(Visum)
-    print "adjust_StopPoints(Visum) finished"
+    logPrinter("adjust_StopPoints(Visum) finished")
 
 
 def filter_Visum_Net(Visum):
     filter_Links(Visum)
-    print "filter_Links(Visum) finished"
+    logPrinter("filter_Links(Visum) finished")
     filter_Turns(Visum)
-    print "filter_Turns(Visum) finished"
+    logPrinter("filter_Turns(Visum) finished")
     filter_LinkTypes(Visum)
-    print "filter_LinkTypes(Visum) finished"
+    logPrinter("filter_LinkTypes(Visum) finished")
 
 
 def make_BM(Visum):
     # Mezzo:
     make_Demand(Visum)
-    print "make_Demand(Visum) finished"
+    logPrinter("make_Demand(Visum) finished")
     make_Hist_Times(Visum)
-    print "make_Hist_Times(Visum) finished"
+    logPrinter("make_Hist_Times(Visum) finished")
     make_Net(Visum)
-    print "make_Net(Visum) finished"
+    logPrinter("make_Net(Visum) finished")
     make_Turnings(Visum)
-    print "make_Turnings(Visum) finished"
+    logPrinter("make_Turnings(Visum) finished")
     make_Vehicle_Mix(Visum)
-    print "make_Vehicle_Mix(Visum) finished"
+    logPrinter("make_Vehicle_Mix(Visum) finished")
     make_Routes(Visum)
-    print "make_Routes(Visum) finished"
+    logPrinter("make_Routes(Visum) finished")
 
     # BusMezzo:
     make_Transit_Demand(Visum)
-    print "make_Transit_Demand(Visum) finished"
+    print("make_Transit_Demand(Visum) finished")
     make_Transit_Fleet(Visum)
-    print "make_Transit_Fleet(Visum) finished"
+    print("make_Transit_Fleet(Visum) finished")
     make_Transit_Network(Visum)
-    print "make_Transit_Network(Visum) finished"
+    print("make_Transit_Network(Visum) finished")
     make_Transit_Routes(Visum)
-    print "make_Transit_Routes(Visum) finished"
+    print("make_Transit_Routes(Visum) finished")
 
 
     # other Mezzo files (not related to Visum input):
