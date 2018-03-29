@@ -1,4 +1,5 @@
 from math import pow, ceil, log10
+import sys
 
 from fileWriter import calc_BM_list_of_elements, \
     str_int, convert_ConcatenatedMultiAttValues, LIST_BEGIN, LIST_END
@@ -78,8 +79,11 @@ def modify_network_StopPoints(Visum):
             # collect necessary input (StopPoint / Link / Node) parameters:
             sp_from_node = sp.AttValue("FromNodeNo")
             sp_link_no = sp.AttValue("LinkNo")
+            try:
+                link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_from_node)
+            except:
+                sys.exit("Visum Stop Point on node not supported - Import failed")
 
-            link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_from_node)
             link_length = link.AttValue("Length") * 1000        # in [m]
 
             # FIRST CHECK - minimum link length
