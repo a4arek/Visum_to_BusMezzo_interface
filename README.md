@@ -1,11 +1,16 @@
 # Visum -> BusMezzo importer
 
 (c) Department of Transport Systems, Cracow University of Technology, 2018
-(c) Department of Transport and Planning, Delft University of Technology, 2018
- Arkadiusz Drabicki, Rafal Kucharski, Oded Cats
- adrabicki@pk.edu.pl, rkucharski@pk.edu.pl, o.cats@tudelft.nl
 
-feel free to use however you want, the software is provided as-is, without warranty of any kind
+(c) Department of Transport and Planning, Delft University of Technology, 2018
+
+ Arkadiusz Drabicki, Rafal Kucharski, Oded Cats
+ 
+ adrabicki_at_pk.edu.pl, rkucharski_at_pk.edu.pl, o.cats_at_tudelft.nl
+
+# general
+
+Scripts to export `BusMezzo` input files from `PTV Visum` version file.
 
 for Visum see: http://vision-traffic.ptvgroup.com/en-us/products/ptv-visum/
 for BusMezzo see: https://odedcats.weblog.tudelft.nl/busmezzo/
@@ -31,3 +36,9 @@ BusMezzo files (.dat) will be created in the Version Project Directory of Visum 
 - one connector per zone ONLY
 - connectors pinned directly to the stopArea access nodes
 - PuT: timetable coded (no headways)
+
+# licence
+
+[licence](https://github.com/a4arek/Visum_to_BusMezzo_interface/blob/master/LICENSE)
+
+
