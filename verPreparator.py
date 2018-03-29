@@ -371,7 +371,7 @@ def adjust_LineRoutes(Visum):
             try:
                 link_to_be_active = Visum.Net.Links.ItemByLinkNrFromNode(Visum_list_links[lnk-1],Visum_list_fromnodes[lnk-1])
             except:
-                sys.exit("Cos tu nie dziala")
+                pass # sys.exit("Cos tu nie dziala")
             link_to_be_active.SetAttValue("BM_FILTER_Visum_Links",1)
 
         # BACK TO THE LINE ROUTE:
@@ -647,7 +647,8 @@ def addUDAs_TimeProfiles(Visum):
     # relevant in case of format:3 only:
     addUDAs(obj,"BM_Headway",[1,0,0,0,0,0])
     # relevant in case of format:2 only:
-    addUDAs(obj,"BM_List_DispTimes",[5])
+    Visum.Net.TimeProfiles.AddUserDefinedAttribute("BM_List_DispTimes", "BM_List_DispTimes", "BM_List_DispTimes", 62)
+    #addUDAs(obj,"BM_List_DispTimes",[5])
 
 def addUDAs_VehicleUnits(Visum):
 
