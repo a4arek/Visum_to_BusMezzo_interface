@@ -35,6 +35,7 @@
 
 import os
 
+import win32com.client
 from visumAttributes import MAIN_PATH
 
 from verPreparator import *
@@ -163,11 +164,10 @@ if __name__ == "__main__":
         MAIN_PATH = Visum.GetPath(2)
     except:
         # standalone
-        import win32com.client
-
         MAIN_PATH = os.getcwd()
+        TEST_PATH = MAIN_PATH+"\\test\\gniezno\\Gniezno_PuT.ver"
         Visum = win32com.client.Dispatch('Visum.Visum')
         # Visum.LoadVersion(MAIN_PATH+".ver")
-        Visum.LoadVersion("E:\BM_adjusted3.ver")
+        Visum.LoadVersion(TEST_PATH)
 
     main(Visum)
