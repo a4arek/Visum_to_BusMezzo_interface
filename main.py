@@ -41,6 +41,8 @@ from visumFilters import *
 from visumAttributes import *
 from BMcreator import *
 
+bm_log = ""  # main string to append logs
+
 
 def modify_network(Visum):
     # change the Visum network itself, to make it importable

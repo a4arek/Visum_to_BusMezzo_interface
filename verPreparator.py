@@ -111,7 +111,7 @@ def modify_network_Connectors(Visum):
 
         if conn.AttValue("Direction") == 1.0:
             zone = Visum.Net.Zones.ItemByKey(conn.AttValue("ZoneNo"))
-            Visum.Net.AddLink(conn_id_offset,zone.AttValue("BM_ZoneID"), conn.AttValue("NodeNo"))
+            Visum.Net.AddLink(conn_id_offset, zone.AttValue("BM_ZoneID"), conn.AttValue("NodeNo"))
             conn_id_offset += 1
         else:
             pass
@@ -121,6 +121,7 @@ def modify_network_Connectors(Visum):
 def modify_network_StopPoints(Visum):
     # add StopPoint Links (split) and set RelativePosition
 
+    # add UDA (if not added yet)
     try:
         Visum.Net.StopPoints.AddUserDefinedAttribute("BM_StopPoint_Modified","BM_StopPoint_Modified","BM_StopPoint_Modified",9)
     except:
@@ -148,14 +149,14 @@ def modify_network_StopPoints(Visum):
 
             # FIRST CHECK - minimum link length
             if link_length <= 26.0:
-                pass
+                pass # RK: what then?
 
             else:
                 sp_to_node = link.AttValue("ToNodeNo")
                 sp_rel_position = sp.AttValue("RelPos")
 
-                sp_dist_from_node = link_length * sp_rel_position           # distance [m] between StopPoint <-> start node
-                sp_dist_to_node = link_length - sp_dist_from_node           # distance [m] between StopPoint <-> end node
+                sp_dist_from_node = link_length * sp_rel_position  # distance [m] between StopPoint <-> start node
+                sp_dist_to_node = link_length - sp_dist_from_node  # distance [m] between StopPoint <-> end node
 
                 # X, Y COORDINATES - data required for Link splitting procedure
                 # X,Y COORDINATES - StopPoint
@@ -178,14 +179,14 @@ def modify_network_StopPoints(Visum):
                     try:
                         sp.SetAttValue("RelPos", adjust_rel_pos)
                     except:
-                        print "nie udalo sie przesunac StopPoint no", sp.AttValue("No")
+                        print "Adjusting StopPoint position failed", sp.AttValue("No")
                         pass
                     split_node = get_splitting_coords(ref_stoppoint, ref_fromnode, 1.0)
 
                     try:
                         link.SplitAtPosition(split_node[0], split_node[1])
                     except:
-                        print "nie udalo sie podzielic Link no", link.AttValue("No")
+                        print "Link splitting failed", link.AttValue("No")
                         pass
 
                 elif sp_dist_to_node < 13.0:
