@@ -35,11 +35,14 @@
 
 import os
 
-from fileWriter import *
+from visumAttributes import MAIN_PATH
+
 from verPreparator import *
 from visumFilters import *
-from visumAttributes import *
-from BMcreator import *
+from BMcreator import make_Demand, make_Hist_Times, make_Net, make_Turnings, make_Vehicle_Mix, make_Routes, \
+    make_Transit_Demand, make_Transit_Fleet, make_Transit_Network, make_Transit_Routes, logPrinter
+
+
 
 bm_log = ""  # main string to append logs
 
@@ -51,7 +54,6 @@ def modify_network(Visum):
 
 
 def add_UDAs(Visum):
-
     addUDAs_Nodes(Visum)
     logPrinter("addUDAs_Nodes(Visum)")
     addUDAs_Links(Visum)
@@ -153,7 +155,6 @@ def main(Visum):
     make_BM(Visum)
 
 
-
 if __name__ == "__main__":
     # initialize VISUM and load the .ver file
     try:
@@ -163,19 +164,10 @@ if __name__ == "__main__":
     except:
         # standalone
         import win32com.client
+
         MAIN_PATH = os.getcwd()
         Visum = win32com.client.Dispatch('Visum.Visum')
         # Visum.LoadVersion(MAIN_PATH+".ver")
         Visum.LoadVersion("E:\BM_adjusted3.ver")
 
     main(Visum)
-
-
-
-
-
-
-
-
-
-

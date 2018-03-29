@@ -2,7 +2,7 @@ import numpy as np
 
 from visumAttributes import *
 from fileWriter import *
-from main import MAIN_PATH
+
 
 
 def make_Demand(Visum):
@@ -165,3 +165,5 @@ def make_Transit_Routes(Visum):
     addTable(file, "routes", Visum.Net.LineRoutes.GetMultipleAttributes(ATTR_LIST_ROUTES), TYPE_LIST_ROUTES)
     file.close()
 
+if __name__ == "__main__":
+    pass

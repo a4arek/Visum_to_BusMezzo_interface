@@ -75,3 +75,6 @@ def find_dist_factor(ref_stoppoint, ref_node, BM_stop_length):
     distance_factor = BM_stop_length / actual_distance
 
     return distance_factor
+
+if __name__ == "__main__":
+    pass

@@ -1,6 +1,8 @@
 from math import pow, ceil, log10
 
-from fileWriter import *
+from fileWriter import calc_BM_list_of_elements, \
+    str_int, convert_ConcatenatedMultiAttValues, LIST_BEGIN, LIST_END
+
 from geometrical import get_spline_coords_of_Link, get_splitting_coords, find_nearest_intermediate_ref_Link_point, \
     find_opposite_ref_Link_point, find_dist_factor
 from visumAttributes import DEFAULT_STOPPOINTRELPOS
@@ -688,3 +690,5 @@ def addUDAs_StopPoints(Visum):
     addUDAs(obj,"BM_CanOvertake",[225,0,0,0,0,0,0,0,can_overtake_formula])
     addUDAs(obj,"BM_RTI_Level",[225,0,0,0,0,0,0,0,RTI_lvl_formula])
 
+if __name__ == "__main__":
+    pass

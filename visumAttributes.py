@@ -1,5 +1,5 @@
 ##### Visum input attributes (lists)
-
+MAIN_PATH = ""
 STOP_LEN = 27  # default bus stop point length [m]
 DEFAULT_STOPPOINTRELPOS = 0.49  # default stop point poistion
 
@@ -38,3 +38,6 @@ TYPE_LIST_TIMEPROFILES_format3 = [int, int, str, int, int, int]
 TYPE_LIST_TIMEPROFILES_format2 = [int, int, str, int]
 TYPE_LIST_VEHICLEJOURNEYS = [int, int, int, str]
 TYPE_LIST_VEHICLEUNITS = [int, str, float, int, int, int]
+
+if __name__ == "__main__":
+    pass
