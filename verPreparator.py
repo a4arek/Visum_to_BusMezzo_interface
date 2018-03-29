@@ -339,6 +339,7 @@ def adjust_Turns(Visum):
     # (turns} - assign TurnID and In/Out_LinkID values
 
     Iterator = Visum.Net.Turns.Iterator
+    # Visum.Net.Turns.SetAttValues("BM_InLInkID", Visum.Net.Turns.AttValues("FromNodeNo/BMLinkID"))
     i = 1
     while Iterator.Valid:
         turn = Iterator.Item
@@ -350,6 +351,7 @@ def adjust_Turns(Visum):
         turn.SetAttValue("BM_OutLinkID",outlink)
 
         i += 1
+
 
         Iterator.Next()
 
