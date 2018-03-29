@@ -1,5 +1,7 @@
 import math
 from fileWriter import *
+from visumAttributes import DEFAULT_STOPPOINTRELPOS
+
 
 # auxiliary functions for the modify_network_StopPoints(Visum) procedure:
 
@@ -179,7 +181,7 @@ def modify_network_StopPoints(Visum):
                     try:
                         sp.SetAttValue("RelPos", adjust_rel_pos)
                     except:
-                        print "Adjusting StopPoint position failed", sp.AttValue("No")
+                        print "Adjusting StopPoint position failed: ", sp.AttValue("No")
                         pass
                     split_node = get_splitting_coords(ref_stoppoint, ref_fromnode, 1.0)
 
@@ -229,12 +231,11 @@ def modify_network_StopPoints(Visum):
                     except:
                         print "nie udalo sie podzielic Link no", link.AttValue("No")
                         pass
-
-                # FINAL PART - mark that the StopPoint was modified
                 try:
-                    sp.SetAttValue("RelPos", 0.49)
+                    sp.SetAttValue("RelPos", DEFAULT_STOPPOINTRELPOS)
                 except:
                     pass
+                # FINAL PART - mark that the StopPoint was modified
                 sp.SetAttValue("BM_StopPoint_Modified", 1)
 
         # proceed to the next StopPoint

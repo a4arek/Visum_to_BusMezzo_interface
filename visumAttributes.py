@@ -2,6 +2,7 @@
 ##### Visum input attributes (lists)
 
 STOP_LEN = 27 # default bus stop point length [m]
+DEFAULT_STOPPOINTRELPOS = 0.49  # default stop point poistion
 
 # Mezzo network input
 ATTR_LIST_NODES = ["No", "BM_NodeType", "XCoord", "YCoord"]

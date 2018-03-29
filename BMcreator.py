@@ -2,7 +2,7 @@ import numpy as np
 
 from visumAttributes import *
 from fileWriter import *
-from main import *
+from main import MAIN_PATH
 
 
 def make_Demand(Visum):
