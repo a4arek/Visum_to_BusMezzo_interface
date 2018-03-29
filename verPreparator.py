@@ -323,6 +323,7 @@ def adjust_Nodes(Visum):
         # !! TO BE FIXED - ADD THE SERVER ID (additional column) to NodeType = 2
         Iterator.Next()
 
+
 def adjust_Links(Visum):
     # {links} - assign LinkID values
     empty_list = list(Visum.Net.Links.GetMultiAttValues("No"))
@@ -338,22 +339,9 @@ def adjust_Links(Visum):
 def adjust_Turns(Visum):
     # (turns} - assign TurnID and In/Out_LinkID values
 
-    Iterator = Visum.Net.Turns.Iterator
-    # Visum.Net.Turns.SetAttValues("BM_InLInkID", Visum.Net.Turns.AttValues("FromNodeNo/BMLinkID"))
-    i = 1
-    while Iterator.Valid:
-        turn = Iterator.Item
-        turn.SetAttValue("BM_TurnID",i)
+    Visum.Net.Turns.SetMultiAttValues("BM_InLInkID", Visum.Net.Turns.GetMultiAttValues("FromLink\BM_LinkID"))
+    Visum.Net.Turns.SetMultiAttValues("BM_OUtLInkID", Visum.Net.Turns.GetMultiAttValues("ToLink\BM_LinkID"))
 
-        inlink = Visum.Net.Links.ItemByKey(turn.AttValue("FromNodeNo"),turn.AttValue("ViaNodeNo")).AttValue("BM_LinkID")
-        outlink = Visum.Net.Links.ItemByKey(turn.AttValue("ViaNodeNo"),turn.AttValue("ToNodeNo")).AttValue("BM_LinkID")
-        turn.SetAttValue("BM_InLinkID",inlink)
-        turn.SetAttValue("BM_OutLinkID",outlink)
-
-        i += 1
-
-
-        Iterator.Next()
 
 def adjust_LineRoutes(Visum):
 
@@ -380,7 +368,10 @@ def adjust_LineRoutes(Visum):
         Visum_list_fromnodes = convert_ConcatenatedMultiAttValues(from_node_list)
         id = 1
         for lnk in range(1, len(Visum_list_links)+1):
-            link_to_be_active = Visum.Net.Links.ItemByLinkNrFromNode(Visum_list_links[lnk-1],Visum_list_fromnodes[lnk-1])
+            try:
+                link_to_be_active = Visum.Net.Links.ItemByLinkNrFromNode(Visum_list_links[lnk-1],Visum_list_fromnodes[lnk-1])
+            except:
+                sys.exit("Cos tu nie dziala")
             link_to_be_active.SetAttValue("BM_FILTER_Visum_Links",1)
 
         # BACK TO THE LINE ROUTE:
@@ -704,4 +695,7 @@ if __name__ == "__main__":
 
     # Visum.LoadVersion(MAIN_PATH+".ver")
     Visum.LoadVersion(TEST_PATH)
-    adjust_Links(Visum)
+    addUDAs_Links(Visum)
+    addUDAs_Turns(Visum)
+
+    adjust_Turns(Visum)
