@@ -325,15 +325,15 @@ def adjust_Nodes(Visum):
 
 def adjust_Links(Visum):
     # {links} - assign LinkID values
+    empty_list = list(Visum.Net.Links.GetMultiAttValues("No"))
+    b = list()
+    for i, a in enumerate(empty_list):
+        b.append([a[1],i+1])
 
-    Iterator = Visum.Net.Links.Iterator
-    i = 1
-    while Iterator.Valid:
-        link = Iterator.Item
-        link.SetAttValue("BM_LinkID",i)
         i += 1
+    print b
+    Visum.Net.Links.SetMultiAttValues("BM_LinkID",b)
 
-        Iterator.Next()
 
 def adjust_Turns(Visum):
     # (turns} - assign TurnID and In/Out_LinkID values
@@ -695,4 +695,11 @@ def addUDAs_StopPoints(Visum):
     addUDAs(obj,"BM_RTI_Level",[225,0,0,0,0,0,0,0,RTI_lvl_formula])
 
 if __name__ == "__main__":
-    pass
+    import sys, os, win32com.client
+    MAIN_PATH = os.getcwd()
+    TEST_PATH = MAIN_PATH + "\\test\\gniezno\\Gniezno_PuT.ver"
+    Visum = win32com.client.Dispatch('Visum.Visum')
+
+    # Visum.LoadVersion(MAIN_PATH+".ver")
+    Visum.LoadVersion(TEST_PATH)
+    adjust_Links(Visum)
