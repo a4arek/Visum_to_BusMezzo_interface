@@ -23,7 +23,7 @@ BusMezzo files (.dat) will be created in the Version Project Directory of Visum 
 
 # network rules:
 - NODES:
-- LINKS/LINKTYPES: min. length 27[m] if contains StopPointOnLink
+- LINKS/LINKTYPES: min. length 27m if contains StopPointOnLink
 - TURNS:
 - ZONES/CONNECTORS:
 - STOPPOINTS/STOPAREAS:
@@ -31,7 +31,10 @@ BusMezzo files (.dat) will be created in the Version Project Directory of Visum 
 - LINES/LINEROUTES:
 - TIMEPROFILES: only ONE per each LineRoute (=1) / remember to assign VehicleCombinations
 - VEHICLEUNITS: only ONE per each VehicleCombination
-- OD MATRICES:
+- OD MATRICES
+
+# visum network rules
+
 - stops on links (DIRECTED!)
 - one connector per zone ONLY
 - connectors pinned directly to the stopArea access nodes
