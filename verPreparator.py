@@ -1,77 +1,13 @@
-import math
-from fileWriter import *
+from math import pow, ceil, log10
+import sys
 
-# auxiliary functions for the modify_network_StopPoints(Visum) procedure:
+from fileWriter import calc_BM_list_of_elements, \
+    str_int, convert_ConcatenatedMultiAttValues, LIST_BEGIN, LIST_END
 
-def get_spline_coords_of_Link(in_WKT_Poly_list):
-    # input - WKT_Poly list of the Link
-    # output - 2D array with [x,y] coordinates of intermediate (polygon) points of the Link
+from geometrical import get_spline_coords_of_Link, get_splitting_coords, find_nearest_intermediate_ref_Link_point, \
+    find_opposite_ref_Link_point, find_dist_factor
+from visumAttributes import DEFAULT_STOPPOINTRELPOS
 
-    in_raw_list = in_WKT_Poly_list.replace("LINESTRING(", "")
-    in_raw_list = in_raw_list.replace(")", "")
-
-    in_list = in_raw_list.split(",")
-
-    # initialize 2D array of the same size
-    out_list = [[0 for x in range(2)] for y in range(len(in_list))]
-
-    for row_id, row in enumerate(in_list):
-        out_list[row_id][0] = float(row.split(" ")[0])
-        out_list[row_id][1] = float(row.split(" ")[1])
-
-    return out_list
-
-def get_splitting_coords(ref_stoppoint, ref_node, dist_factor):
-    # returns the X,Y coordinates for splitting the Link - based on:
-    # (1) reference StopPoint, (2) reference Node, (3) distance/scale factor
-
-    stop_x = ref_stoppoint[0]
-    stop_y = ref_stoppoint[1]
-    node_x = ref_node[0]
-    node_y = ref_node[1]
-
-    # get the X-coord
-    if stop_x > node_x:
-        split_x = stop_x + abs(stop_x - node_x) * dist_factor
-    else:
-        split_x = stop_x - abs(stop_x - node_x) * dist_factor
-    # get the Y-coord
-    if stop_y > node_y:
-        split_y = stop_y + abs(stop_y - node_y) * dist_factor
-    else:
-        split_y = stop_y - abs(stop_y - node_y) * dist_factor
-
-    return [split_x, split_y]
-
-def find_nearest_intermediate_ref_Link_point(ref_stoppoint, Link_WKT_poly_list):
-    # returns the X,Y coordinates of the nearest/closest spline point on the Link to the ref StopPoint
-    # input - (1) reference StopPoint, (2) (converted) list of spline [x,y] coordinates
-
-    rel_dist_list = [None] * len(Link_WKT_poly_list)
-    for i, int_point in enumerate(Link_WKT_poly_list):
-        rel_dist_list[i] = math.sqrt( (ref_stoppoint[0] - int_point[0])**2 + (ref_stoppoint[1] - int_point[1])**2 )
-
-    # find intermediate node with minimum distance
-    nearest_nd_id = rel_dist_list.index(min(rel_dist_list))
-    point_x = Link_WKT_poly_list[nearest_nd_id][0]
-    point_y = Link_WKT_poly_list[nearest_nd_id][1]
-
-    return [point_x, point_y]
-
-def find_opposite_ref_Link_point(ref_stoppoint, ref_int_node):
-    # returns "mirror" coordinates of reference point for splitting procedure
-    # (case 3 only)
-    opposite_int_node_x = ref_stoppoint[0] - (ref_int_node[0] - ref_stoppoint[0])
-    opposite_int_node_y = ref_stoppoint[1] - (ref_int_node[1] - ref_stoppoint[1])
-
-    return [opposite_int_node_x, opposite_int_node_y]
-
-def find_dist_factor(ref_stoppoint, ref_node, BM_stop_length):
-
-    actual_distance = math.sqrt( (ref_stoppoint[0] - ref_node[0])**2 + (ref_stoppoint[1] - ref_node[1])**2 )
-    distance_factor = BM_stop_length / actual_distance
-
-    return distance_factor
 
 #################################
 ## 0a. ADD EXTRA VISUM OBJECTS ##
@@ -84,8 +20,8 @@ def modify_network_Zones(Visum):
 
     Iterator = Visum.Net.Zones.Iterator
     max_node_no = max(row[1] for row in Visum.Net.Nodes.GetMultiAttValues("No"))
-    zone_offset_magnitude = math.ceil(math.log10(max_node_no))
-    zone_id_offset = int(math.pow(10,zone_offset_magnitude))
+    zone_offset_magnitude = ceil(log10(max_node_no))
+    zone_id_offset = int(pow(10,zone_offset_magnitude))
 
     while Iterator.Valid:
         zone = Iterator.Item
@@ -103,15 +39,15 @@ def modify_network_Connectors(Visum):
 
     Iterator = Visum.Net.Connectors.Iterator
     max_link_no = max(row[1] for row in Visum.Net.Links.GetMultiAttValues("No"))
-    conn_offset_magnitude = math.ceil(math.log10(max_link_no))
-    conn_id_offset = int(math.pow(10,conn_offset_magnitude))
+    conn_offset_magnitude = ceil(log10(max_link_no))
+    conn_id_offset = int(pow(10,conn_offset_magnitude))
 
     while Iterator.Valid:
         conn = Iterator.Item
 
         if conn.AttValue("Direction") == 1.0:
             zone = Visum.Net.Zones.ItemByKey(conn.AttValue("ZoneNo"))
-            Visum.Net.AddLink(conn_id_offset,zone.AttValue("BM_ZoneID"), conn.AttValue("NodeNo"))
+            Visum.Net.AddLink(conn_id_offset, zone.AttValue("BM_ZoneID"), conn.AttValue("NodeNo"))
             conn_id_offset += 1
         else:
             pass
@@ -121,6 +57,7 @@ def modify_network_Connectors(Visum):
 def modify_network_StopPoints(Visum):
     # add StopPoint Links (split) and set RelativePosition
 
+    # add UDA (if not added yet)
     try:
         Visum.Net.StopPoints.AddUserDefinedAttribute("BM_StopPoint_Modified","BM_StopPoint_Modified","BM_StopPoint_Modified",9)
     except:
@@ -142,20 +79,23 @@ def modify_network_StopPoints(Visum):
             # collect necessary input (StopPoint / Link / Node) parameters:
             sp_from_node = sp.AttValue("FromNodeNo")
             sp_link_no = sp.AttValue("LinkNo")
+            try:
+                link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_from_node)
+            except:
+                sys.exit("Visum Stop Point on node not supported - Import failed")
 
-            link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_from_node)
             link_length = link.AttValue("Length") * 1000        # in [m]
 
             # FIRST CHECK - minimum link length
             if link_length <= 26.0:
-                pass
+                pass # RK: what then?
 
             else:
                 sp_to_node = link.AttValue("ToNodeNo")
                 sp_rel_position = sp.AttValue("RelPos")
 
-                sp_dist_from_node = link_length * sp_rel_position           # distance [m] between StopPoint <-> start node
-                sp_dist_to_node = link_length - sp_dist_from_node           # distance [m] between StopPoint <-> end node
+                sp_dist_from_node = link_length * sp_rel_position  # distance [m] between StopPoint <-> start node
+                sp_dist_to_node = link_length - sp_dist_from_node  # distance [m] between StopPoint <-> end node
 
                 # X, Y COORDINATES - data required for Link splitting procedure
                 # X,Y COORDINATES - StopPoint
@@ -178,14 +118,14 @@ def modify_network_StopPoints(Visum):
                     try:
                         sp.SetAttValue("RelPos", adjust_rel_pos)
                     except:
-                        print "nie udalo sie przesunac StopPoint no", sp.AttValue("No")
+                        print "Adjusting StopPoint position failed: ", sp.AttValue("No")
                         pass
                     split_node = get_splitting_coords(ref_stoppoint, ref_fromnode, 1.0)
 
                     try:
                         link.SplitAtPosition(split_node[0], split_node[1])
                     except:
-                        print "nie udalo sie podzielic Link no", link.AttValue("No")
+                        print "Link splitting failed", link.AttValue("No")
                         pass
 
                 elif sp_dist_to_node < 13.0:
@@ -221,19 +161,18 @@ def modify_network_StopPoints(Visum):
                         print "nie udalo sie przesunac StopPoint no", sp.AttValue("No")
                         pass
 
-                    ref_opposite_int_node = find_opposite_ref_Link_point(ref_stoppoint,ref_int_node)
+                    ref_opposite_int_node = find_opposite_ref_Link_point(ref_stoppoint, ref_int_node)
                     split_node_no2 = get_splitting_coords(ref_stoppoint, ref_opposite_int_node, dist_factor)
                     try:
                         link.SplitAtPosition(split_node_no2[0], split_node_no2[1])
                     except:
                         print "nie udalo sie podzielic Link no", link.AttValue("No")
                         pass
-
-                # FINAL PART - mark that the StopPoint was modified
                 try:
-                    sp.SetAttValue("RelPos", 0.49)
+                    sp.SetAttValue("RelPos", DEFAULT_STOPPOINTRELPOS)
                 except:
                     pass
+                # FINAL PART - mark that the StopPoint was modified
                 sp.SetAttValue("BM_StopPoint_Modified", 1)
 
         # proceed to the next StopPoint
@@ -384,35 +323,25 @@ def adjust_Nodes(Visum):
         # !! TO BE FIXED - ADD THE SERVER ID (additional column) to NodeType = 2
         Iterator.Next()
 
+
 def adjust_Links(Visum):
     # {links} - assign LinkID values
+    empty_list = list(Visum.Net.Links.GetMultiAttValues("No"))
+    b = list()
+    for i, a in enumerate(empty_list):
+        b.append([a[1],i+1])
 
-    Iterator = Visum.Net.Links.Iterator
-    i = 1
-    while Iterator.Valid:
-        link = Iterator.Item
-        link.SetAttValue("BM_LinkID",i)
         i += 1
+    print b
+    Visum.Net.Links.SetMultiAttValues("BM_LinkID",b)
 
-        Iterator.Next()
 
 def adjust_Turns(Visum):
     # (turns} - assign TurnID and In/Out_LinkID values
 
-    Iterator = Visum.Net.Turns.Iterator
-    i = 1
-    while Iterator.Valid:
-        turn = Iterator.Item
-        turn.SetAttValue("BM_TurnID",i)
+    Visum.Net.Turns.SetMultiAttValues("BM_InLInkID", Visum.Net.Turns.GetMultiAttValues("FromLink\BM_LinkID"))
+    Visum.Net.Turns.SetMultiAttValues("BM_OUtLInkID", Visum.Net.Turns.GetMultiAttValues("ToLink\BM_LinkID"))
 
-        inlink = Visum.Net.Links.ItemByKey(turn.AttValue("FromNodeNo"),turn.AttValue("ViaNodeNo")).AttValue("BM_LinkID")
-        outlink = Visum.Net.Links.ItemByKey(turn.AttValue("ViaNodeNo"),turn.AttValue("ToNodeNo")).AttValue("BM_LinkID")
-        turn.SetAttValue("BM_InLinkID",inlink)
-        turn.SetAttValue("BM_OutLinkID",outlink)
-
-        i += 1
-
-        Iterator.Next()
 
 def adjust_LineRoutes(Visum):
 
@@ -439,7 +368,10 @@ def adjust_LineRoutes(Visum):
         Visum_list_fromnodes = convert_ConcatenatedMultiAttValues(from_node_list)
         id = 1
         for lnk in range(1, len(Visum_list_links)+1):
-            link_to_be_active = Visum.Net.Links.ItemByLinkNrFromNode(Visum_list_links[lnk-1],Visum_list_fromnodes[lnk-1])
+            try:
+                link_to_be_active = Visum.Net.Links.ItemByLinkNrFromNode(Visum_list_links[lnk-1],Visum_list_fromnodes[lnk-1])
+            except:
+                pass # sys.exit("Cos tu nie dziala")
             link_to_be_active.SetAttValue("BM_FILTER_Visum_Links",1)
 
         # BACK TO THE LINE ROUTE:
@@ -715,7 +647,8 @@ def addUDAs_TimeProfiles(Visum):
     # relevant in case of format:3 only:
     addUDAs(obj,"BM_Headway",[1,0,0,0,0,0])
     # relevant in case of format:2 only:
-    addUDAs(obj,"BM_List_DispTimes",[5])
+    Visum.Net.TimeProfiles.AddUserDefinedAttribute("BM_List_DispTimes", "BM_List_DispTimes", "BM_List_DispTimes", 62)
+    #addUDAs(obj,"BM_List_DispTimes",[5])
 
 def addUDAs_VehicleUnits(Visum):
 
@@ -755,3 +688,15 @@ def addUDAs_StopPoints(Visum):
     addUDAs(obj,"BM_CanOvertake",[225,0,0,0,0,0,0,0,can_overtake_formula])
     addUDAs(obj,"BM_RTI_Level",[225,0,0,0,0,0,0,0,RTI_lvl_formula])
 
+if __name__ == "__main__":
+    import sys, os, win32com.client
+    MAIN_PATH = os.getcwd()
+    TEST_PATH = MAIN_PATH + "\\test\\gniezno\\Gniezno_PuT.ver"
+    Visum = win32com.client.Dispatch('Visum.Visum')
+
+    # Visum.LoadVersion(MAIN_PATH+".ver")
+    Visum.LoadVersion(TEST_PATH)
+    addUDAs_Links(Visum)
+    addUDAs_Turns(Visum)
+
+    adjust_Turns(Visum)

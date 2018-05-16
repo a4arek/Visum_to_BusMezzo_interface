@@ -1,5 +1,5 @@
 ﻿##############################################################
-############# Visum -> BusMezzo importer #####################
+#                    Visum -> BusMezzo importer              #
 ##############################################################
 # (c) Department of Transport Systems, Cracow University of Technology, 2018
 # (c) Department of Transport and Planning, Delft University of Technology, 2018
@@ -10,9 +10,10 @@
 #
 # for Visum see: http://vision-traffic.ptvgroup.com/en-us/products/ptv-visum/
 # for BusMezzo see: https://odedcats.weblog.tudelft.nl/busmezzo/
-# or contact with main developer: Dr Oded Cats http://www.citg.tudelft.nl/en/about-faculty/departments/transport-and-planning/staff-information/dr-oded-cats/
+# or contact with main BusMezzo developer:
+# Dr Oded Cats http://www.citg.tudelft.nl/en/about-faculty/departments/transport-and-planning/staff-information/dr-oded-cats/
 #
-######## usage:
+# usage:
 # run the script in Visum (drag & drop).
 # BusMezzo files (.dat) will be created in the Version Project Directory of Visum (%MYDOCUMENTS% by default)
 #
@@ -32,93 +33,100 @@
 # - connectors pinned directly to the stopArea access nodes
 # - PuT: timetable coded (no headways)
 
+import os
 
-from fileWriter import *
+import win32com.client
+from visumAttributes import MAIN_PATH
+
 from verPreparator import *
 from visumFilters import *
-from visumAttributes import *
-from BMcreator import *
+from BMcreator import make_Demand, make_Hist_Times, make_Net, make_Turnings, make_Vehicle_Mix, make_Routes, \
+    make_Transit_Demand, make_Transit_Fleet, make_Transit_Network, make_Transit_Routes, logPrinter
+
+
+
+bm_log = ""  # main string to append logs
 
 
 def modify_network(Visum):
+    # change the Visum network itself, to make it importable
     modify_network_StopPoints(Visum)
-    logPrinter("modify_network_StopPoints(Visum) finished")
+    logPrinter("modify_network_StopPoints(Visum)")
 
 
 def add_UDAs(Visum):
-
     addUDAs_Nodes(Visum)
-    logPrinter("addUDAs_Nodes(Visum) finished")
+    logPrinter("addUDAs_Nodes(Visum)")
     addUDAs_Links(Visum)
-    logPrinter("addUDAs_Links(Visum) finished")
+    logPrinter("addUDAs_Links(Visum)")
     addUDAs_LinkTypes(Visum)
-    logPrinter("addUDAs_LinkTypes(Visum) finished")
+    logPrinter("addUDAs_LinkTypes(Visum)")
     addUDAs_Turns(Visum)
-    logPrinter("addUDAs_Turns(Visum) finished")
+    logPrinter("addUDAs_Turns(Visum)")
 
     addUDAs_LineRoutes(Visum)
-    logPrinter("addUDAs_LineRoutes(Visum) finished")
+    logPrinter("addUDAs_LineRoutes(Visum)")
     addUDAs_TimeProfiles(Visum)
-    logPrinter("addUDAs_TimeProfiles(Visum) finished")
+    logPrinter("addUDAs_TimeProfiles(Visum)")
     addUDAs_VehicleJourneys(Visum)
-    logPrinter("addUDAs_VehicleJourneys(Visum) finished")
+    logPrinter("addUDAs_VehicleJourneys(Visum)")
     addUDAs_VehicleUnits(Visum)
-    logPrinter("addUDAs_VehicleUnits(Visum) finished")
+    logPrinter("addUDAs_VehicleUnits(Visum)")
     addUDAs_StopPoints(Visum)
-    logPrinter("addUDAs_StopPoints(Visum) finished")
+    logPrinter("addUDAs_StopPoints(Visum)")
 
 
 def adjust_UDAs(Visum):
     adjust_Nodes(Visum)
-    logPrinter("adjust_Nodes(Visum) finished")
+    logPrinter("adjust_Nodes(Visum)")
     adjust_Links(Visum)
-    logPrinter("adjust_Links(Visum) finished")
+    logPrinter("adjust_Links(Visum)")
     adjust_Turns(Visum)
-    logPrinter("adjust_Turns(Visum) finished")
+    logPrinter("adjust_Turns(Visum)")
 
     adjust_LineRoutes(Visum)
-    logPrinter("adjust_LineRoutes(Visum) finished")
+    logPrinter("adjust_LineRoutes(Visum)")
     adjust_TimeProfiles(Visum)
-    print "adjust_TimeProfiles(Visum) finished"
+    logPrinter("adjust_TimeProfiles(Visum)")
     adjust_VehicleJourneys(Visum)
-    print "adjust_VehicleJourneys(Visum) finished"
+    logPrinter("adjust_VehicleJourneys(Visum)")
     adjust_StopPoints(Visum)
-    print "adjust_StopPoints(Visum) finished"
+    logPrinter("adjust_StopPoints(Visum) finished")
 
 
 def filter_Visum_Net(Visum):
     filter_Links(Visum)
-    print "filter_Links(Visum) finished"
+    logPrinter("filter_Links(Visum)")
     filter_Turns(Visum)
-    print "filter_Turns(Visum) finished"
+    logPrinter("filter_Turns(Visum)")
     filter_LinkTypes(Visum)
-    print "filter_LinkTypes(Visum) finished"
+    logPrinter("filter_LinkTypes(Visum)")
 
 
 def make_BM(Visum):
     # Mezzo:
     make_Demand(Visum)
-    print "make_Demand(Visum) finished"
+    logPrinter("make_Demand(Visum)")
     make_Hist_Times(Visum)
-    print "make_Hist_Times(Visum) finished"
+    logPrinter("make_Hist_Times(Visum)")
     make_Net(Visum)
-    print "make_Net(Visum) finished"
+    logPrinter("make_Net(Visum)")
     make_Turnings(Visum)
-    print "make_Turnings(Visum) finished"
+    logPrinter("make_Turnings(Visum)")
     make_Vehicle_Mix(Visum)
-    print "make_Vehicle_Mix(Visum) finished"
+    logPrinter("make_Vehicle_Mix(Visum)")
     make_Routes(Visum)
-    print "make_Routes(Visum) finished"
+    logPrinter("make_Routes(Visum)")
 
     # BusMezzo:
     make_Transit_Demand(Visum)
-    print "make_Transit_Demand(Visum) finished"
+    logPrinter("make_Transit_Demand(Visum)")
     make_Transit_Fleet(Visum)
-    print "make_Transit_Fleet(Visum) finished"
+    logPrinter("make_Transit_Fleet(Visum)")
     make_Transit_Network(Visum)
-    print "make_Transit_Network(Visum) finished"
+    logPrinter("make_Transit_Network(Visum)")
     make_Transit_Routes(Visum)
-    print "make_Transit_Routes(Visum) finished"
+    logPrinter("make_Transit_Routes(Visum)")
 
 
     # other Mezzo files (not related to Visum input):
@@ -148,7 +156,6 @@ def main(Visum):
     make_BM(Visum)
 
 
-
 if __name__ == "__main__":
     # initialize VISUM and load the .ver file
     try:
@@ -157,20 +164,10 @@ if __name__ == "__main__":
         MAIN_PATH = Visum.GetPath(2)
     except:
         # standalone
-        import win32com.client
-        MAIN_PATH = "E:\BM"
+        MAIN_PATH = os.getcwd()
+        TEST_PATH = MAIN_PATH+"\\test\\gniezno\\Gniezno_PuT.ver"
         Visum = win32com.client.Dispatch('Visum.Visum')
         # Visum.LoadVersion(MAIN_PATH+".ver")
-        Visum.LoadVersion("E:\BM_adjusted3.ver")
+        Visum.LoadVersion(TEST_PATH)
 
     main(Visum)
-
-
-
-
-
-
-
-
-
-

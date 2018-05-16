@@ -7,13 +7,15 @@ LIST_END_NL = "}\n"
 LINE_TAB = "	"
 LINE_NEW = "\n"
 VISUM_CONCAT_DELIM = ","
-asasa= 3
+LOG_HEADER = "-"*50+"\n\t"
 
-def logPrinter(msg, msg_type = ': finished'):
-    print msg + msg_type
+
+
+def logPrinter(msg, msg_type = 'finished'):
+    print(LOG_HEADER + str(msg) + "\t:\t" + msg_type)
 
 def addTable(file, name, table, type_list):
-    if name <> "":
+    if name != "":
         file.write(name + ":" + LINE_TAB+str(len(table)) + "\n")
     for line in table:
         appendDataLine(file, line, type_list)
@@ -49,7 +51,7 @@ def addField (field):
         return '{0:.1f}'.format(float(field))
     elif isinstance(field, str):
         return str(field)
-    elif isinstance(field, unicode):
+    elif isinstance(field, bytes):
         return str(field)
     else:
         return str(0)

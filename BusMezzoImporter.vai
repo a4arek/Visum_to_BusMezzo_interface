@@ -4,8 +4,8 @@
 			<AddInID>BusMezzoImporter</AddInID>
 			<AddInName>Bus Mezzo Importer</AddInName>
 			<AddInPath></AddInPath>
-			<AddInParaDlgScript>BusMezzo.py</AddInParaDlgScript>
-			<AddInBodyScript>BusMezzo.py</AddInBodyScript>
+			<AddInParaDlgScript>main.py</AddInParaDlgScript>
+			<AddInBodyScript>main.py</AddInBodyScript>
 			<AddInOperation>true</AddInOperation>
 			<AddInAutoMenu>true</AddInAutoMenu>
 			<AddInAutoShowPara>true</AddInAutoShowPara>

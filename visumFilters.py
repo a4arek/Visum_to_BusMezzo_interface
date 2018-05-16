@@ -52,3 +52,7 @@ def filter_LinkTypes(Visum):
 
         Iterator.Next()
 
+
+if __name__ == "__main__":
+    pass
+
