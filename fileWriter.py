@@ -7,7 +7,7 @@ LIST_END_NL = "}\n"
 LINE_TAB = "	"
 LINE_NEW = "\n"
 VISUM_CONCAT_DELIM = ","
-
+asasa= 3
 
 def logPrinter(msg, msg_type = ': finished'):
     print msg + msg_type
