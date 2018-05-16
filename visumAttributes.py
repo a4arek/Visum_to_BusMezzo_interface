@@ -41,3 +41,4 @@ TYPE_LIST_VEHICLEUNITS = [int, str, float, int, int, int]
 
 if __name__ == "__main__":
     pass
+
