@@ -158,9 +158,15 @@ def make_Transit_Network(Visum):
     conn_list.AddColumn("BM_DestPointData")
     conn_list.AddColumn("T0_TSys(W)")
     in_conn_list = np.array(conn_list.SaveToArray())
+    out_conn_list = []
 
     # 2b. prepare a BusMezzo-adequate input list
-
+    # for i, orig_point in enumerate(in_conn_list):
+    #    try:
+    #        ### error str(orig_point)
+    #        pass
+    #    else:
+    #        out_conn_list.append(in_conn_list[i])
 
     # LINES / TRIPS data:
 
