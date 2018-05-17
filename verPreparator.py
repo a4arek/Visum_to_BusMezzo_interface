@@ -323,7 +323,6 @@ def adjust_Nodes(Visum):
         # !! TO BE FIXED - ADD THE SERVER ID (additional column) to NodeType = 2
         Iterator.Next()
 
-
 def adjust_Links(Visum):
     # {links} - assign LinkID values
     empty_list = list(Visum.Net.Links.GetMultiAttValues("No"))
@@ -335,6 +334,23 @@ def adjust_Links(Visum):
     print b
     Visum.Net.Links.SetMultiAttValues("BM_LinkID",b)
 
+def adjust_Connectors(Visum):
+    # (connectors) - assign Orig and Dest points or lists (BM_Zone_ID, StopAreaNo)
+
+    Iterator = Visum.Net.Connectors.Iterator
+
+    while Iterator.Valid:
+        conn = Iterator.Item
+
+        if conn.AttValue("Direction") == 1.0:   # origin connector (Zone => AccessNode)
+            conn.SetAttValue("BM_OrigPointData", conn.AttValue("Zone\BM_ZoneID"))
+            conn.SetAttValue("BM_DestPointData", conn.AttValue("Node\Distinct:StopAreas\No"))
+        else:                                   # destination connector (AccessNode => Zone)
+            pass
+            #conn.SetAttValue("BM_OrigPointData", conn.AttValue("Node\Distinct:StopAreas\No"))
+            #conn.SetAttValue("BM_DestPointData", conn.AttValue("Zone\BM_ZoneID"))
+
+        Iterator.Next()
 
 def adjust_Turns(Visum):
     # (turns} - assign TurnID and In/Out_LinkID values
@@ -591,6 +607,22 @@ def addUDAs_Links(Visum):
 
     addUDAs(obj,"BM_FILTER_Visum_Links",[9])
 
+def addUDAs_Zones(Visum):
+
+    obj = Visum.Net.Zones
+    # UDAs formulae and constants
+    zone_id_offset = formula="7770000+[No]"
+
+    addUDAs(obj,"BM_ZoneID",[225,1,0,0,0,0,0,0,zone_id_offset])
+
+def addUDAs_Connectors(Visum):
+
+    obj = Visum.Net.Connectors
+    # UDAs formulae and constants
+
+    addUDAs(obj,"BM_OrigPointData",[5])
+    addUDAs(obj,"BM_DestPointData",[5])
+
 def addUDAs_LinkTypes(Visum):
 
     obj = Visum.Net.LinkTypes
@@ -612,6 +644,7 @@ def addUDAs_Turns(Visum):
     addUDAs(obj,"BM_OutLinkID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_ServerID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_LookBack",[1,0,0,0,0,40])
+
 
 def addUDAs_LineRoutes(Visum):
 

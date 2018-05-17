@@ -94,3 +94,4 @@ def calc_BM_list_of_elements(in_int_list):
     out_str_list = LIST_BEGIN + ' '.join(map(str, in_int_list)) + LIST_END
     return(out_str_list)
 
+

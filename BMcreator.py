@@ -103,12 +103,15 @@ def make_Transit_Fleet(Visum):
 
 def make_Transit_Network(Visum):
 
+    # STOPS data:
+
     file = open(MAIN_PATH + '\\transit_network.dat', 'w')
     addTable(file, "stops",Visum.Net.StopPoints.GetMultipleAttributes(ATTR_LIST_STOPPOINTS), TYPE_LIST_STOPPOINTS)
 
     # STOPS_DISTANCES{...} - list export and processing steps:
 
-    # 1. create StopArea transfer matrix
+    ### 1. STOP_AREA_TRANSFERS - within-stop walking links
+    # 1a. create StopArea transfer matrix
     walk_list = Visum.Lists.CreateStopTransferWalkTimeList
     walk_list.AddColumn("FromStopAreaNo")
     walk_list.AddColumn("ToStopAreaNo")
@@ -117,7 +120,7 @@ def make_Transit_Network(Visum):
     # walk_list.AddColumn("Time(W)",GroupOrAggrFunction=10)
     in_list = np.array(walk_list.SaveToArray())
 
-    # 2. remove duplicates and transfers within the same stop
+    # 1b. remove duplicates and transfers within the same stop
     for row in in_list:
         if row[0] == row[1]:
             row[0:2] = 0
@@ -125,7 +128,7 @@ def make_Transit_Network(Visum):
             pass
     in_list = in_list[~(in_list==0).all(1)]
 
-    # 3. finally - prepare a BusMezzo-adequate input list
+    # 1c. finally - prepare a BusMezzo-adequate input list
     out_list = dict()
     from_stops = [r[0] for r in in_list]
     for r in in_list:
@@ -142,9 +145,24 @@ def make_Transit_Network(Visum):
     ### !!! sprawdzic to jeszcze
     TYPE_LIST_STOPAREAS = [int, int, int, float]
 
+    # 1d. write StopArea transfers to BM .dat file
     file.write("stops_distances: " + str(len(out_list)) + LINE_NEW)
     file.write("format: 1" + LINE_NEW)
     addTable(file, "", ATTR_LIST_STOPAREAS, TYPE_LIST_STOPAREAS)
+
+    ### 2. ORIGIN/DESTINATION TRANSFERS - map Connectors(Zone<=>Stop) into additional walking links
+
+    # 2a. create list of Connector walking links
+    conn_list = Visum.Lists.CreateConnectorList
+    conn_list.AddColumn("BM_OrigPointData")
+    conn_list.AddColumn("BM_DestPointData")
+    conn_list.AddColumn("T0_TSys(W)")
+    in_conn_list = np.array(conn_list.SaveToArray())
+
+    # 2b. prepare a BusMezzo-adequate input list
+
+
+    # LINES / TRIPS data:
 
     file.write("lines: " + str(Visum.Net.LineRoutes.Count) + LINE_NEW)
     addTable(file,"",Visum.Net.LineRoutes.GetMultipleAttributes(ATTR_LIST_LINEROUTES), TYPE_LIST_LINEROUTES)
