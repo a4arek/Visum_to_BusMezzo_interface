@@ -69,26 +69,28 @@ def make_Routes(Visum):
 # BusMezzo input files
 
 def make_Transit_Demand(Visum):
+
+    MatNo = str(int(Visum.Net.DemandSegments.ItemByKey("X").ODMatrix.AttValue("No")))
+
+    ### previous version - passenger demand derived from the PuT stop-level matrix:
+
     ### !!! make sure that the [StopPoint-level PuT matrix] is already calculated in Visum !!! ###
     ### Calculate -> General procedure settings -> PuT settings -> Assignment -> ...           ###
     ### ... -> tick [Save the volume matrix between stop points on the path level] -> ...      ###
     ### ... -> run [PuT Assignment] -> save the .ver file                                      ###
 
-    # MatNo=str(int(Visum.Net.DemandSegments.ItemByKey("X").ODMatrix.AttValue("No")))
-    # TransitODList=Visum.Net.ODPairs.GetMultipleAttributes(ATTR_LIST_TRANSITODPAIRS)
+    # od_list = Visum.Lists.CreatePuTStopPointVolumeMatrixPathList
+    # od_list.AddColumn("FromStopPointNo")
+    # od_list.AddColumn("ToStopPointNo")
+    # od_list.AddColumn("Volume(AP)")
 
-    od_list = Visum.Lists.CreatePuTStopPointVolumeMatrixPathList
-    od_list.AddColumn("FromStopPointNo")
-    od_list.AddColumn("ToStopPointNo")
-    od_list.AddColumn("Volume(AP)")
-
-    ATTR_LIST_TRANSITODPAIRS = od_list.SaveToArray()
-    TYPE_LIST_TRANSITODPAIRS = [int, int, int]
+    # ATTR_LIST_TRANSITODPAIRS = od_list.SaveToArray()
+    # TYPE_LIST_TRANSITODPAIRS = [int, int, int]
 
     file = open(MAIN_PATH+'\\transit_demand.dat', 'w')
-    file.write("passenger_rates: " + str(len(ATTR_LIST_TRANSITODPAIRS)) + LINE_NEW)
+    file.write("passenger_rates: " + str(Visum.Net.ODPairs.Count) + LINE_NEW)
     file.write("format: 3" + LINE_NEW)
-    addTable(file,"",ATTR_LIST_TRANSITODPAIRS, TYPE_LIST_TRANSITODPAIRS)
+    addTable(file,"",Visum.Net.ODPairs.GetMultipleAttributes(ATTR_LIST_TRANSITODPAIRS), TYPE_LIST_TRANSITODPAIRS)
     file.close()
 
 def make_Transit_Fleet(Visum):
@@ -145,11 +147,6 @@ def make_Transit_Network(Visum):
     ### !!! sprawdzic to jeszcze
     TYPE_LIST_STOPAREAS = [int, int, int, float]
 
-    # 1d. write StopArea transfers to BM .dat file
-    file.write("stops_distances: " + str(len(out_list)) + LINE_NEW)
-    file.write("format: 1" + LINE_NEW)
-    addTable(file, "", ATTR_LIST_STOPAREAS, TYPE_LIST_STOPAREAS)
-
     ### 2. ORIGIN/DESTINATION TRANSFERS - map Connectors(Zone<=>Stop) into additional walking links
 
     # 2a. create list of Connector walking links
@@ -157,16 +154,35 @@ def make_Transit_Network(Visum):
     conn_list.AddColumn("BM_OrigPointData")
     conn_list.AddColumn("BM_DestPointData")
     conn_list.AddColumn("T0_TSys(W)")
-    in_conn_list = np.array(conn_list.SaveToArray())
+    in_conn_list = [[str(x) for x in row] for row in np.array(conn_list.SaveToArray())]
     out_conn_list = []
 
     # 2b. prepare a BusMezzo-adequate input list
-    # for i, orig_point in enumerate(in_conn_list):
-    #    try:
-    #        ### error str(orig_point)
-    #        pass
-    #    else:
-    #        out_conn_list.append(in_conn_list[i])
+    for connector in in_conn_list:
+        if connector[0] == '':
+            pass
+        else:
+            orig_point = connector[0]
+            dest_points = connector[1].split(',')
+            conn_walk_time = connector[2]
+            num_connections = len(dest_points)
+            stop_connections = []
+            for i in dest_points:
+                stop_connections.append([int(i), float(conn_walk_time)])
+            out_conn_list.append([int(orig_point), num_connections, stop_connections])
+
+    ATTR_LIST_CONNECTORS = out_conn_list
+    # quick-fix -  remove outer brackets
+    # ATTR_LIST_CONNECTORS = [i[0] for i in ATTR_LIST_STOPAREAS]
+    ### !!! sprawdzic to jeszcze
+    TYPE_LIST_CONNECTORS = [int, int, int, float]
+
+    ### 3. WRITE OUTPUT TO .DAT FILE
+
+    file.write("stops_distances: " + str(len(out_list)) + LINE_NEW)
+    file.write("format: 1" + LINE_NEW)
+    addTable(file, "", ATTR_LIST_STOPAREAS, TYPE_LIST_STOPAREAS)
+    addTable(file, "", ATTR_LIST_CONNECTORS, TYPE_LIST_CONNECTORS)
 
     # LINES / TRIPS data:
 
