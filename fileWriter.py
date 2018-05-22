@@ -10,9 +10,13 @@ VISUM_CONCAT_DELIM = ","
 LOG_HEADER = "-"*50+"\n\t"
 
 
+def logPrinter(msg, msg_type = 'finished', Visum = None):
+    msg = LOG_HEADER + str(msg) + "\t:\t" + msg_type
+    #if Visum is not None:
+    Visum.Log(8192, msg)
 
-def logPrinter(msg, msg_type = 'finished'):
-    print(LOG_HEADER + str(msg) + "\t:\t" + msg_type)
+    print(msg)
+
 
 def addTable(file, name, table, type_list):
     if name != "":

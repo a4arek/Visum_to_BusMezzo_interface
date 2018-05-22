@@ -328,11 +328,11 @@ def adjust_Links(Visum):
     empty_list = list(Visum.Net.Links.GetMultiAttValues("No"))
     b = list()
     for i, a in enumerate(empty_list):
-        b.append([a[1],i+1])
-
+        link_index = a[0]
+        b.append([link_index,i+1])
         i += 1
     print b
-    Visum.Net.Links.SetMultiAttValues("BM_LinkID",b)
+    Visum.Net.Links.SetMultiAttValues("BM_LinkID", b)
 
 def adjust_Connectors(Visum):
     # (connectors) - assign Orig and Dest points or lists (BM_Zone_ID, StopAreaNo)
@@ -582,7 +582,10 @@ def addUDAs(_obj, _name, _call):
     # _obj - Visum.Net object
     # _name - attribute name/ID
     # _call - data type parameters (EnumValueType)
-    _obj.AddUserDefinedAttribute(*[_name]*3+_call)
+    try:
+        _obj.AddUserDefinedAttribute(*[_name]*3+_call)
+    except:
+        pass
 
 # add necessary UDAs to convert Visum variables into "BusMezzo-tailored" units
 
@@ -653,9 +656,9 @@ def addUDAs_LineRoutes(Visum):
     # ATTR_LIST_ROUTES
     addUDAs(obj,"BM_RouteID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_RouteName",[5])
-    addUDAs(obj,"BM_List_Links",[5])
+    addUDAs(obj,"BM_List_Links",[62])
     addUDAs(obj,"BM_No_of_Links",[1,0,0,0,0,0])
-    addUDAs(obj,"BM_List_Stops",[5])
+    addUDAs(obj,"BM_List_Stops",[62])
     addUDAs(obj,"BM_Start_Node_No",[1,0,0,0,0,0])
     addUDAs(obj,"BM_End_Node_No",[1,0,0,0,0,0])
     addUDAs(obj,"BM_Start_Stop_No",[1,0,0,0,0,0])
@@ -674,14 +677,14 @@ def addUDAs_TimeProfiles(Visum):
     obj = Visum.Net.TimeProfiles
 
     addUDAs(obj,"BM_TimeProfileID",[1,0,0,0,0,0])
-    addUDAs(obj,"BM_List_RunTimes",[5])
+    addUDAs(obj,"BM_List_RunTimes",[62])
     addUDAs(obj,"BM_No_of_RunTimes",[1,0,0,0,0,0])
     addUDAs(obj,"BM_First_Dispatch_Time",[1,0,0,0,0,0])
     # relevant in case of format:3 only:
     addUDAs(obj,"BM_Headway",[1,0,0,0,0,0])
     # relevant in case of format:2 only:
-    Visum.Net.TimeProfiles.AddUserDefinedAttribute("BM_List_DispTimes", "BM_List_DispTimes", "BM_List_DispTimes", 62)
-    #addUDAs(obj,"BM_List_DispTimes",[5])
+    # Visum.Net.TimeProfiles.AddUserDefinedAttribute("BM_List_DispTimes", "BM_List_DispTimes", "BM_List_DispTimes", 62)
+    addUDAs(obj,"BM_List_DispTimes",[62])
 
 def addUDAs_VehicleUnits(Visum):
 

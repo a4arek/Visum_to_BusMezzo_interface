@@ -1,7 +1,7 @@
 ##### Visum input attributes (lists)
-MAIN_PATH = ""
 STOP_LEN = 27  # default bus stop point length [m]
 DEFAULT_STOPPOINTRELPOS = 0.49  # default stop point poistion
+# MatNo = '121'   # quick-fix_AD
 
 # Mezzo network input
 ATTR_LIST_NODES = ["No", "BM_NodeType", "XCoord", "YCoord"]
@@ -30,7 +30,7 @@ ATTR_LIST_TIMEPROFILES_format3 = ["BM_TimeProfileID", "BM_No_of_RunTimes", "BM_L
 ATTR_LIST_TIMEPROFILES_format2 = ["BM_TimeProfileID", "BM_No_of_RunTimes", "BM_List_RunTimes", "Count:VehJourneys"]
 ATTR_LIST_VEHICLEJOURNEYS = ["BM_TripID", "BM_VehTypeID", "BM_NumTrips", "BM_List_Trips"]
 ATTR_LIST_VEHICLEUNITS = ["No", "Name", "BM_VehLength", "SeatCap", "TotalCap", "BM_DTFunction"]
-ATTR_LIST_TRANSITODPAIRS = ("FromZone\BM_ZoneID", "ToZone\BM_ZoneID", "MatValue(" + MatNo + ")")
+ATTR_LIST_TRANSITODPAIRS =["FromZone\BM_ZoneID", "ToZone\BM_ZoneID"]
 
 # BusMezzo - output attribute types
 TYPE_LIST_STOPPOINTS = [int, str, int, float, float, int, int, float, int]
@@ -39,7 +39,7 @@ TYPE_LIST_TIMEPROFILES_format3 = [int, int, str, int, int, int]
 TYPE_LIST_TIMEPROFILES_format2 = [int, int, str, int]
 TYPE_LIST_VEHICLEJOURNEYS = [int, int, int, str]
 TYPE_LIST_VEHICLEUNITS = [int, str, float, int, int, int]
-TYPE_LIST_TRANSITODPAIRS = [int,int,int]
+TYPE_LIST_TRANSITODPAIRS = [int, int, int]
 
 if __name__ == "__main__":
     pass

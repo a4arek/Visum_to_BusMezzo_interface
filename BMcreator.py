@@ -4,9 +4,8 @@ from visumAttributes import *
 from fileWriter import *
 
 
-
-
 def make_Demand(Visum):
+    MAIN_PATH = Visum.GetPath(2)
 
     od_list = Visum.Lists.CreateLineRouteList
     od_list.AddColumn("BM_Start_Node_No")
@@ -19,13 +18,18 @@ def make_Demand(Visum):
     ATTR_LIST_ODPAIRS = np.vstack({tuple(od_path) for od_path in in_list})
     TYPE_LIST_ODPAIRS = [int, int, float]
 
-    file = open(MAIN_PATH+'\\demand.dat', 'w')
+    print(MAIN_PATH+'\\demand.dat', 'w')
+    print(MAIN_PATH)
+
+
+    file = open('demand.dat', 'w')
     file.write("od_pairs: " + str(len(ATTR_LIST_ODPAIRS)) + LINE_NEW)
     file.write("scale: 1.0" + LINE_NEW)
     addTable(file,"",ATTR_LIST_ODPAIRS, TYPE_LIST_ODPAIRS)
     file.close()
 
 def make_Hist_Times(Visum):
+    MAIN_PATH = Visum.GetPath(2)
 
     file = open(MAIN_PATH+'\\histtimes.dat', 'w')
     file.write("links: " + str(Visum.Net.Links.CountActive) + LINE_NEW)
@@ -35,6 +39,7 @@ def make_Hist_Times(Visum):
     file.close()
 
 def make_Net(Visum):
+    MAIN_PATH = Visum.GetPath(2)
 
     file = open(MAIN_PATH+'\\net.dat', 'w')
     addTable(file,"servers",[[0,0,0,0,0]], [int, int, int, int, int])
@@ -44,14 +49,14 @@ def make_Net(Visum):
     file.close()
 
 def make_Turnings(Visum):
-
+    MAIN_PATH = Visum.GetPath(2)
     file = open(MAIN_PATH+'\\turnings.dat', 'w')
     addTable(file, "turnings",Visum.Net.Turns.GetMultipleAttributes(ATTR_LIST_TURNS, True), TYPE_LIST_TURNS)
     file.write("giveways:0")
     file.close()
 
 def make_Vehicle_Mix(Visum):
-
+    MAIN_PATH = Visum.GetPath(2)
     file = open(MAIN_PATH+'\\vehiclemix.dat', 'w')
     file.write("vtypes: 5" + LINE_NEW)
     file.write(LIST_BEGIN + "1 NewCars 0.410 6.0" + LIST_END_NL)
@@ -62,7 +67,7 @@ def make_Vehicle_Mix(Visum):
     file.close()
 
 def make_Routes(Visum):
-
+    MAIN_PATH = Visum.GetPath(2)
     file = open(MAIN_PATH+'\\routes.dat', 'w')
     addTable(file, "routes",Visum.Net.LineRoutes.GetMultipleAttributes(ATTR_LIST_ROUTES), TYPE_LIST_ROUTES)
     file.close()
@@ -70,6 +75,7 @@ def make_Routes(Visum):
 # BusMezzo input files
 
 def make_Transit_Demand(Visum):
+    MAIN_PATH = Visum.GetPath(2)
 
     MatNo = str(int(Visum.Net.DemandSegments.ItemByKey("X").ODMatrix.AttValue("No")))
 
@@ -91,10 +97,13 @@ def make_Transit_Demand(Visum):
     file = open(MAIN_PATH+'\\transit_demand.dat', 'w')
     file.write("passenger_rates: " + str(Visum.Net.ODPairs.Count) + LINE_NEW)
     file.write("format: 3" + LINE_NEW)
-    addTable(file,"",Visum.Net.ODPairs.GetMultipleAttributes(ATTR_LIST_TRANSITODPAIRS), TYPE_LIST_TRANSITODPAIRS)
+
+    ATTR_LIST_TRANSITODPAIRS.append("MatValue({})".format(MatNo))
+    addTable(file, "", Visum.Net.ODPairs.GetMultipleAttributes(ATTR_LIST_TRANSITODPAIRS), TYPE_LIST_TRANSITODPAIRS)
     file.close()
 
 def make_Transit_Fleet(Visum):
+    MAIN_PATH = Visum.GetPath(2)
 
     file = open(MAIN_PATH + '\\transit_fleet.dat', 'w')
     ATTR_LIST_DWELL_TIME_FUNCTIONS = [[1,11,0.0,2.0,2.0,2.0,0.0,2.0],[2,11,0.0,2.0,2.0,2.0,0.0,2.0]]
@@ -107,6 +116,7 @@ def make_Transit_Fleet(Visum):
 def make_Transit_Network(Visum):
 
     # STOPS data:
+    MAIN_PATH = Visum.GetPath(2)
 
     file = open(MAIN_PATH + '\\transit_network.dat', 'w')
     addTable(file, "stops",Visum.Net.StopPoints.GetMultipleAttributes(ATTR_LIST_STOPPOINTS), TYPE_LIST_STOPPOINTS)
@@ -170,6 +180,7 @@ def make_Transit_Network(Visum):
             stop_connections = []
             for i in dest_points:
                 stop_connections.append([int(i), float(conn_walk_time)])
+            stop_connections = stop_connections[0]
             out_conn_list.append([int(orig_point), num_connections, stop_connections])
 
     ATTR_LIST_CONNECTORS = out_conn_list
@@ -201,6 +212,7 @@ def make_Transit_Network(Visum):
     file.close()
 
 def make_Transit_Routes(Visum):
+    MAIN_PATH = Visum.GetPath(2)
 
     file = open(MAIN_PATH + '\\transit_routes.dat', 'w')
     addTable(file, "routes", Visum.Net.LineRoutes.GetMultipleAttributes(ATTR_LIST_ROUTES), TYPE_LIST_ROUTES)
