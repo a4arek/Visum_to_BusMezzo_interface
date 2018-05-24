@@ -12,7 +12,7 @@ def filter_Links(Visum):
 
         check_link = Iterator.Item.AttValue("BM_FILTER_Visum_Links")
 
-        if check_link is True:
+        if check_link == 1.0:
             Iterator.Item.Active = True
         else:
             Iterator.Item.Active = False

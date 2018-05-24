@@ -18,11 +18,7 @@ def make_Demand(Visum):
     ATTR_LIST_ODPAIRS = np.vstack({tuple(od_path) for od_path in in_list})
     TYPE_LIST_ODPAIRS = [int, int, float]
 
-    print(MAIN_PATH+'\\demand.dat', 'w')
-    print(MAIN_PATH)
-
-
-    file = open('demand.dat', 'w')
+    file = open(MAIN_PATH+'demand.dat', 'w')
     file.write("od_pairs: " + str(len(ATTR_LIST_ODPAIRS)) + LINE_NEW)
     file.write("scale: 1.0" + LINE_NEW)
     addTable(file,"",ATTR_LIST_ODPAIRS, TYPE_LIST_ODPAIRS)
@@ -170,9 +166,10 @@ def make_Transit_Network(Visum):
 
     # 2b. prepare a BusMezzo-adequate input list
     for connector in in_conn_list:
-        if connector[0] == '':
+        if connector[0] == '':      # skip non-origin connectors
             pass
-        else:
+        else:                       # add origin connectors' data only
+            zone_connections = []
             orig_point = connector[0]
             dest_points = connector[1].split(',')
             conn_walk_time = connector[2]
@@ -180,8 +177,12 @@ def make_Transit_Network(Visum):
             stop_connections = []
             for i in dest_points:
                 stop_connections.append([int(i), float(conn_walk_time)])
-            stop_connections = stop_connections[0]
-            out_conn_list.append([int(orig_point), num_connections, stop_connections])
+            zone_connections.append(int(orig_point))
+            zone_connections.append(num_connections)
+            for list_of_walk_connections in stop_connections:
+                zone_connections.append(list_of_walk_connections)
+
+        out_conn_list.append(zone_connections)
 
     ATTR_LIST_CONNECTORS = out_conn_list
     # quick-fix -  remove outer brackets
