@@ -48,10 +48,11 @@ bm_log = ""  # main string to append logs
 
 
 
-def modify_network(Visum):
+# def modify_network(Visum):
     # change the Visum network itself, to make it importable
-    modify_network_StopPoints(Visum)
-    logPrinter("modify_network_StopPoints(Visum)",Visum=Visum)
+    ### update 25-05-2018 - temporarily switched off (maybe we won't need this)
+    # modify_network_StopPoints(Visum)
+    # logPrinter("modify_network_StopPoints(Visum)",Visum=Visum)
 
 
 def add_UDAs(Visum):
@@ -154,7 +155,7 @@ def main(Visum):
     :param Visum: COM object of PTV Visum
     :return: void
     """
-    modify_network(Visum)
+    # modify_network(Visum)
     add_UDAs(Visum)
     adjust_UDAs(Visum)
     filter_Visum_Net(Visum)

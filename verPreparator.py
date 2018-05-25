@@ -379,7 +379,7 @@ def adjust_LineRoutes(Visum):
 
         line_course = Iterator.Item.LineRouteItems.GetMultiAttValues("InLink\BM_LinkID")
 
-        # !!! UPDATE LINKS FOR FILTERING - HERE!
+        # !!! UPDATE LINKS AND TURNS FOR FILTERING - HERE!
         Visum_list_links = convert_ConcatenatedMultiAttValues(link_list)
         Visum_list_fromnodes = convert_ConcatenatedMultiAttValues(from_node_list)
         id = 1
