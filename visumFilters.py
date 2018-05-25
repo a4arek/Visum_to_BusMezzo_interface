@@ -26,13 +26,22 @@ def filter_Turns(Visum):
     while Iterator.Valid:
 
         tr = Iterator.Item
-        check_in_link = Visum.Net.Links.ItemByKey(tr.AttValue("FromLink\FromNodeNo"), tr.AttValue("FromLink\ToNodeNo")).Active
-        check_out_link = Visum.Net.Links.ItemByKey(tr.AttValue("ToLink\FromNodeNo"), tr.AttValue("ToLink\ToNodeNo")).Active
+        no_of_passing_line_routes = tr.AttValue("Count:LineRouteItems")
 
-        if check_in_link == True and check_out_link == True:
+        if no_of_passing_line_routes > 0:
             Iterator.Item.Active = True
         else:
             Iterator.Item.Active = False
+
+        ### fixed 25-05-2018 - new method added above, old method (below)
+
+        # check_in_link = Visum.Net.Links.ItemByKey(tr.AttValue("FromLink\FromNodeNo"), tr.AttValue("FromLink\ToNodeNo")).Active
+        # check_out_link = Visum.Net.Links.ItemByKey(tr.AttValue("ToLink\FromNodeNo"), tr.AttValue("ToLink\ToNodeNo")).Active
+
+        # if check_in_link == True and check_out_link == True:
+        #     Iterator.Item.Active = True
+        # else:
+        #     Iterator.Item.Active = False
 
         Iterator.Next()
 
