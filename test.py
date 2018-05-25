@@ -8,7 +8,6 @@ if __name__ == "__main__":
         MAIN_PATH = MAIN_PATH = Visum.GetPath(2)
     except:
         # standalone
-
         MAIN_PATH = os.getcwd()
         #MAIN_PATH = "E:\BM"
         MAIN_PATH = MAIN_PATH+"\\test\\Krakow_test_I_obw\\"
