@@ -2,7 +2,7 @@ from math import pow, ceil, log10
 import sys
 
 from fileWriter import calc_BM_list_of_elements, \
-    str_int, convert_ConcatenatedMultiAttValues, LIST_BEGIN, LIST_END
+    str_int, convert_ConcatenatedMultiAttValues, numbering_offset, LIST_BEGIN, LIST_END
 
 from geometrical import get_spline_coords_of_Link, get_splitting_coords, find_nearest_intermediate_ref_Link_point, \
     find_opposite_ref_Link_point, find_dist_factor
@@ -16,25 +16,89 @@ from visumAttributes import DEFAULT_STOPPOINTRELPOS
 # add necessary objects and modify Visum network before BusMezzo import
 
 def modify_network_Zones(Visum):
-    # Zones - convert into additional Nodes
+
+    # 1. add necessary UDAs for modifications
+    obj = Visum.Net.Zones
+    addUDAs(obj, "BM_ZoneID", [1,0,0,0,0,0])
+    obj = Visum.Net.Links
+    addUDAs(obj,"BM_FILTER_Visum_Zone_Centroid_Links",[9])
+
+    # 2. find Visum objects' offsets
+    nodes_offset = numbering_offset(Visum.Lists.CreateNodeList)
+    links_offset = numbering_offset(Visum.Lists.CreateLinkList)
+    stops_offset = numbering_offset(Visum.Lists.CreateStopBaseList)
+    stopareas_offset = numbering_offset(Visum.Lists.CreateStopAreaList)
+    stoppoints_offset = numbering_offset(Visum.Lists.CreateStopPointBaseList)
+    zones_offset = numbering_offset(Visum.Lists.CreateZoneList)
+
+    curr_node_no = nodes_offset
+    curr_link_no = links_offset
+    curr_stop_no = stops_offset
+    curr_stoparea_no = max(stopareas_offset, stoppoints_offset)
+    curr_stoppoint_no = curr_stoparea_no
+    curr_zone_no = zones_offset
 
     Iterator = Visum.Net.Zones.Iterator
-    max_node_no = max(row[1] for row in Visum.Net.Nodes.GetMultiAttValues("No"))
-    zone_offset_magnitude = ceil(log10(max_node_no))
-    zone_id_offset = int(pow(10,zone_offset_magnitude))
 
     while Iterator.Valid:
-        zone = Iterator.Item
 
-        Visum.Net.AddNode(zone_id_offset + zone.AttValue("No"),
-                          zone.AttValue("XCoord"),
-                          zone.AttValue("YCoord"))
-        zone.SetAttValue("AddVal1", int(zone_id_offset + zone.AttValue("No")))
-        zone.SetAttValue("BM_ZoneID", int(zone_id_offset + zone.AttValue("No")))
+    # 3. add a fictitious Link (along with required Nodes) at each Zone centroid
+        zone = Iterator.Item
+        zone_x = zone.AttValue("XCoord")
+        zone_y = zone.AttValue("YCoord")
+
+        Visum.Net.AddNode(curr_node_no, zone_x-20, zone_y)
+        curr_node_no += 1
+        Visum.Net.AddNode(curr_node_no, zone_x+20, zone_y)
+        Visum.Net.AddLink(curr_link_no, curr_node_no - 1, curr_node_no)
+
+    # 4. add fictitious Stop/StopArea/StopPoint at each Zone centroid
+        Visum.Net.AddStop(curr_stop_no, zone_x, zone_y)
+        Visum.Net.AddStopArea(curr_stoparea_no, curr_stop_no, curr_node_no, zone_x, zone_y)
+        Visum.Net.AddStopPointOnLink(curr_stoppoint_no, curr_stoparea_no, curr_node_no - 1, curr_node_no, True)
+
+    # 5. set BM_ZoneID
+        zone.SetAttValue("BM_ZoneID", curr_zone_no)
+
+    # 6. mark valid Zone centroid Links (i.e. for further filtering)
+        mark_link = Visum.Net.Links.ItemByKey(curr_node_no -1, curr_node_no)
+        mark_link.SetAttValue("BM_FILTER_Visum_Zone_Centroid_Links", 1.0)
+
+    # repeat for all Zones
+        curr_node_no += 1
+        curr_link_no += 1
+        curr_stop_no += 1
+        curr_stoparea_no += 1
+        curr_stoppoint_no += 1
+        curr_zone_no += 1
 
         Iterator.Next()
 
+
+    #########################
+    #########################
+    # OLD SCRIPT - disabled 28-05-2018
+    # old Zones - convert into additional Nodes
+
+    # Iterator = Visum.Net.Zones.Iterator
+    # max_node_no = max(row[1] for row in Visum.Net.Nodes.GetMultiAttValues("No"))
+    # zone_offset_magnitude = ceil(log10(max_node_no))
+    # zone_id_offset = int(pow(10,zone_offset_magnitude))
+
+    # while Iterator.Valid:
+    #     zone = Iterator.Item
+
+    #     Visum.Net.AddNode(zone_id_offset + zone.AttValue("No"),
+    #                       zone.AttValue("XCoord"),
+    #                       zone.AttValue("YCoord"))
+    #     zone.SetAttValue("AddVal1", int(zone_id_offset + zone.AttValue("No")))
+    #     zone.SetAttValue("BM_ZoneID", int(zone_id_offset + zone.AttValue("No")))
+
+    #     Iterator.Next()
+
 def modify_network_Connectors(Visum):
+
+    # disabled 28-05-2018 - not necessary anymore (connectors added as stop transfers instead)
     # Connectors - convert into additional Links
 
     Iterator = Visum.Net.Connectors.Iterator
@@ -612,11 +676,11 @@ def addUDAs_Links(Visum):
 
 def addUDAs_Zones(Visum):
 
+    # update 28-05-2018
+    # Zone_ID offset numbering moved earlier - to the modify_Zones(Visum) stage
     obj = Visum.Net.Zones
-    # UDAs formulae and constants
-    zone_id_offset = formula="7770000+[No]"
 
-    addUDAs(obj,"BM_ZoneID",[225,1,0,0,0,0,0,0,zone_id_offset])
+    # addUDAs(obj,"BM_ZoneID",[1,0,0,0,0,0])
 
 def addUDAs_Connectors(Visum):
 

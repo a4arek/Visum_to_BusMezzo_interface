@@ -1,6 +1,6 @@
 
 ###############################################################
-# 3. FILTER VISUM OBJECTS BEFORE IMPORTING THEM TO BUSMEZZO ##
+# 3. FILTER VISUM OBJECTS BEFORE IMPORTING THEM TO BUSMEZZO  ##
 ###############################################################
 
 

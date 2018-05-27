@@ -20,7 +20,7 @@ TYPE_LIST_TURNS = [int, int, int, int, int, int]
 TYPE_LIST_ROUTES = [int, int, int, int, str]
 
 # BusMezzo network input
-ATTR_LIST_STOPPOINTS = ["No", "Name", "BM_StopLinkID", "BM_Position", "BM_Length", "BM_StopType", "BM_CanOvertake",
+ATTR_LIST_STOPPOINTS = ["StopAreaNo", "Name", "BM_StopLinkID", "BM_Position", "BM_Length", "BM_StopType", "BM_CanOvertake",
                         "DefDwellTime", "BM_RTI_Level"]
 ATTR_LIST_LINEROUTES = ["BM_RouteID", "BM_OppositeRouteID", "BM_RouteName", "BM_Start_Node_No", "BM_End_Node_No",
                         "BM_RouteID", "BM_VehType", "BM_HoldingStrategy", "BM_HoldingRatio", "BM_InitialOccupPerStop",

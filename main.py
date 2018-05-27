@@ -35,6 +35,7 @@
 
 import os
 import win32com.client
+import math
 from verPreparator import *
 from visumFilters import *
 from BMcreator import make_Demand, make_Hist_Times, make_Net, make_Turnings, make_Vehicle_Mix, make_Routes, \
@@ -49,11 +50,11 @@ bm_log = ""  # main string to append logs
 
 
 
-# def modify_network(Visum):
+def modify_network(Visum):
     # change the Visum network itself, to make it importable
-    ### update 25-05-2018 - temporarily switched off (maybe we won't need this)
-    # modify_network_StopPoints(Visum)
-    # logPrinter("modify_network_StopPoints(Visum)",Visum=Visum)
+    ### update 28-08-2018 - modification necessary for Zones only
+    modify_network_Zones(Visum)
+    logPrinter("modify_network_Zones(Visum)",Visum=Visum)
 
 
 def add_UDAs(Visum):
@@ -61,8 +62,8 @@ def add_UDAs(Visum):
     logPrinter("addUDAs_Nodes(Visum)",Visum=Visum)
     addUDAs_Links(Visum)
     logPrinter("addUDAs_Links(Visum)", Visum=Visum)
-    addUDAs_Zones(Visum)
-    logPrinter("addUDAs_Zones(Visum)", Visum=Visum)
+    # addUDAs_Zones(Visum)
+    # logPrinter("addUDAs_Zones(Visum)", Visum=Visum)
     addUDAs_Connectors(Visum)
     logPrinter("addUDAs_Connectors(Visum)", Visum=Visum)
     addUDAs_LinkTypes(Visum)
@@ -156,7 +157,7 @@ def main(Visum):
     :param Visum: COM object of PTV Visum
     :return: void
     """
-    # modify_network(Visum)
+    modify_network(Visum)
     add_UDAs(Visum)
     adjust_UDAs(Visum)
     filter_Visum_Net(Visum)
@@ -180,5 +181,5 @@ if __name__ == "__main__":
     Visum.Graphic.StopDrawing = True
     main(Visum)
     Visum.Graphic.StopDrawing = False
-
+    siwek = 1
 

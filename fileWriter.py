@@ -1,4 +1,4 @@
-
+import math
 # constants
 
 LIST_BEGIN = "{"
@@ -99,3 +99,16 @@ def calc_BM_list_of_elements(in_int_list):
     return(out_str_list)
 
 
+def numbering_offset(Visum_Object_List_Creator):
+    # calculates the numbering offset of Visum Net elements
+    # as a further order of magnitude
+    # e.g. max(No) = 7896 => numbering_offset(No) = 10001
+
+    object_no_list = Visum_Object_List_Creator
+    object_no_list.AddColumn("No")
+    max_object_no = float(object_no_list.Max(0))
+    magnitude_order = math.ceil(math.log10(max_object_no))
+
+    output_offset = (10 ** magnitude_order) + 1
+
+    return output_offset
