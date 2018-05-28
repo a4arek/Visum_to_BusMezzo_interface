@@ -58,7 +58,7 @@ def modify_network_Zones(Visum):
         Visum.Net.AddStopPointOnLink(curr_stoppoint_no, curr_stoparea_no, curr_node_no - 1, curr_node_no, True)
 
     # 5. set BM_ZoneID
-        zone.SetAttValue("BM_ZoneID", curr_zone_no)
+        zone.SetAttValue("BM_ZoneID", curr_stoparea_no)
 
     # 6. mark valid Zone centroid Links (i.e. for further filtering)
         mark_link = Visum.Net.Links.ItemByKey(curr_node_no -1, curr_node_no)
@@ -436,7 +436,7 @@ def adjust_LineRoutes(Visum):
         tp = Visum.Net.TimeProfiles.ItemByKey(ln, dir, lrn, '1')
         veh_type = tp.AttValue("VehCombNo")
 
-        stop_list = Iterator.Item.LineRouteItems.GetMultiAttValues("StopPointNo")
+        stop_list = Iterator.Item.LineRouteItems.GetMultiAttValues("StopPoint\StopAreaNo")  # updated 28-05-2018
         link_list = Iterator.Item.LineRouteItems.GetMultiAttValues("InLink\No")
         from_node_list = Iterator.Item.LineRouteItems.GetMultiAttValues("InLink\FromNodeNo")
         node_list = Iterator.Item.LineRouteItems.GetMultiAttValues("NodeNo")
@@ -621,7 +621,7 @@ def adjust_StopPoints(Visum):
         sp_link_no = sp.AttValue("LinkNo")
         sp_fromnode = sp.AttValue("FromNodeNo")
 
-        print sp.AttValue("No")
+        print "SP_no: ", sp.AttValue("No"), "SA_no: ", sp.AttValue("StopAreaNo")
         sp_link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_fromnode)
         sp_link_id = sp_link.AttValue("BM_LinkID")
 

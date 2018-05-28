@@ -16,7 +16,7 @@ def make_Demand(Visum):
     zeros_column = np.zeros((len(in_list),1))
     in_list = np.hstack((in_list, zeros_column))
     ATTR_LIST_ODPAIRS = np.vstack({tuple(od_path) for od_path in in_list})
-    TYPE_LIST_ODPAIRS = [int, int, float]
+    TYPE_LIST_ODPAIRS = [int, int, int]
 
     file = open(MAIN_PATH+'demand.dat', 'w')
     file.write("od_pairs: " + str(len(ATTR_LIST_ODPAIRS)) + LINE_NEW)
@@ -192,7 +192,8 @@ def make_Transit_Network(Visum):
 
     ### 3. WRITE OUTPUT TO .DAT FILE
 
-    file.write("stops_distances: " + str(len(out_list)) + LINE_NEW)
+    stops_dist_length = str(len(out_list) + len(out_conn_list))
+    file.write("stops_distances: " + stops_dist_length + LINE_NEW)
     file.write("format: 1" + LINE_NEW)
     addTable(file, "", ATTR_LIST_STOPAREAS, TYPE_LIST_STOPAREAS)
     addTable(file, "", ATTR_LIST_CONNECTORS, TYPE_LIST_CONNECTORS)
