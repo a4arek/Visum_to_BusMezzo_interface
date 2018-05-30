@@ -66,7 +66,6 @@ def str_int(in_float):
     out_str_int = '{0:g}'.format(float(in_float))
     return(out_str_int)
 
-
 def convert_ConcatenatedMultiAttValues(input_list):
     # remove NoneTypes
     # remove duplicates (i.e. elements appearing twice IN A ROW)
@@ -86,7 +85,6 @@ def convert_ConcatenatedMultiAttValues(input_list):
     output_list = list(out_list_convert_integers)
 
     return output_list
-
 
 def calc_BM_list_of_elements(in_int_list):
     """
@@ -112,3 +110,25 @@ def numbering_offset(Visum_Object_List_Creator):
     output_offset = (10 ** magnitude_order) + 1
 
     return output_offset
+
+def find_average_headway(Visum_Time_Profile, sim_start_time):
+    # simplified calculation of average headway
+    # calculated as (line operating time period) / (no. of trips during simulation time)
+
+    dep_times_all = [i[1] for i in Visum_Time_Profile.VehJourneys.GetMultiAttValues("Dep")]
+
+    for j, dep in enumerate(dep_times_all):
+        if dep >= sim_start_time:
+            break
+        else:
+            pass
+
+    no_of_sim_trips = int(len(dep_times_all) - j)
+    last_dep = dep_times_all[-1]
+    first_dep = dep[j]
+
+    average_headway = str_int(60* round(float(last_dep - first_dep) / no_of_sim_trips)/60)
+
+    return average_headway
+
+

@@ -1,16 +1,17 @@
 ﻿##############################################################
-#                    Visum -> BusMezzo importer              #
+##               PTV Visum -> BusMezzo importer             ##
 ##############################################################
-# (c) Department of Transport Systems, Cracow University of Technology, 2018
+# (c) Department of Transportation Systems, Cracow University of Technology, 2018
 # (c) Department of Transport and Planning, Delft University of Technology, 2018
 #  Arkadiusz Drabicki, Rafal Kucharski, Oded Cats
-#  adrabicki@pk.edu.pl, rkucharski@pk.edu.pl, o.cats@tudelft.nl
+#  adrabicki [at] pk.edu.pl, rkucharski [at] pk.edu.pl, o.cats [at] tudelft.nl
+#  http://www.kst.pk.edu.pl, https://www.tudelft.nl/en/ceg/about-faculty/departments/transport-planning/
 #
 # feel free to use however you want, the software is provided as-is, without warranty of any kind
 #
 # for Visum see: http://vision-traffic.ptvgroup.com/en-us/products/ptv-visum/
 # for BusMezzo see: https://odedcats.weblog.tudelft.nl/busmezzo/
-# or contact with main BusMezzo developer:
+# or contact the main BusMezzo developer:
 # Dr Oded Cats http://www.citg.tudelft.nl/en/about-faculty/departments/transport-and-planning/staff-information/dr-oded-cats/
 #
 # usage:
@@ -45,8 +46,6 @@ MAIN_PATH = ""
 
 
 bm_log = ""  # main string to append logs
-
-
 
 
 
@@ -181,5 +180,3 @@ if __name__ == "__main__":
     Visum.Graphic.StopDrawing = True
     main(Visum)
     Visum.Graphic.StopDrawing = False
-    siwek = 1
-

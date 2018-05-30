@@ -1,12 +1,12 @@
 from math import pow, ceil, log10
 import sys
 
-from fileWriter import calc_BM_list_of_elements, \
+from fileWriter import calc_BM_list_of_elements, find_average_headway, \
     str_int, convert_ConcatenatedMultiAttValues, numbering_offset, LIST_BEGIN, LIST_END
 
 from geometrical import get_spline_coords_of_Link, get_splitting_coords, find_nearest_intermediate_ref_Link_point, \
     find_opposite_ref_Link_point, find_dist_factor
-from visumAttributes import DEFAULT_STOPPOINTRELPOS
+from visumAttributes import *
 
 
 #################################
@@ -233,7 +233,7 @@ def modify_network_StopPoints(Visum):
                         print "nie udalo sie podzielic Link no", link.AttValue("No")
                         pass
                 try:
-                    sp.SetAttValue("RelPos", DEFAULT_STOPPOINTRELPOS)
+                    sp.SetAttValue("RelPos", UDA_StopPoints_DefaultRelPos)
                 except:
                     pass
                 # FINAL PART - mark that the StopPoint was modified
@@ -531,7 +531,9 @@ def adjust_TimeProfiles(Visum):
             add_dep_list = calc_BM_list_of_elements(dep_list)
             # relevant for format:3 - headway-based BusMezzo assignment
             no_of_trips = tp.VehJourneys.Count
-            headway = str_int(60 * round(float(3600/no_of_trips)/60))
+            # for now - simplified (averaged) headway
+            # update 28-05-2018 - new function:
+            headway = find_average_headway(tp, sim_start_time_offset)
 
         except:
             # in case no VehJourneys are defined for this TimeProfile:
@@ -656,7 +658,6 @@ def addUDAs(_obj, _name, _call):
 def addUDAs_Nodes(Visum):
 
     obj = Visum.Net.Nodes
-    # UDAs formulae and constants
 
     addUDAs(obj,"BM_NodeType",[1,0,0,0,0,0])
 
@@ -685,7 +686,6 @@ def addUDAs_Zones(Visum):
 def addUDAs_Connectors(Visum):
 
     obj = Visum.Net.Connectors
-    # UDAs formulae and constants
 
     addUDAs(obj,"BM_OrigPointData",[5])
     addUDAs(obj,"BM_DestPointData",[5])
@@ -694,13 +694,13 @@ def addUDAs_LinkTypes(Visum):
 
     obj = Visum.Net.LinkTypes
     # UDAs formulae and constants
-    v0_PrT_formula = formula="[V0PrT]/3.6"
+    UDA_LinkTypes_v0_PrT_formula = formula="max(0.1,[V0PrT]/3.6)"
 
     addUDAs(obj,"BM_SDID_Function",[1,0,0,0,0,0])
-    addUDAs(obj,"BM_V0PrT",[225,1,0,0,0,0,0,0,v0_PrT_formula])
-    addUDAs(obj,"BM_VminPrT",[1,0,0,0,0,1])
-    addUDAs(obj,"BM_Kmax",[1,0,0,0,0,1])
-    addUDAs(obj,"BM_Kmin",[1,0,0,0,0,1])
+    addUDAs(obj,"BM_V0PrT",[225,1,0,0,0,0,0,0,UDA_LinkTypes_v0_PrT_formula])
+    addUDAs(obj,"BM_VminPrT",[2,1,0,0,0,UDA_LinkTypes_V0_min])
+    addUDAs(obj,"BM_Kmax",[2,1,0,0,0,UDA_LinkTypes_K_max])
+    addUDAs(obj,"BM_Kmin",[2,1,0,0,0,UDA_LinkTypes_K_min])
 
 def addUDAs_Turns(Visum):
 
@@ -709,8 +709,8 @@ def addUDAs_Turns(Visum):
     addUDAs(obj,"BM_TurnID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_InLinkID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_OutLinkID",[1,0,0,0,0,0])
-    addUDAs(obj,"BM_ServerID",[1,0,0,0,0,0])
-    addUDAs(obj,"BM_LookBack",[1,0,0,0,0,40])
+    addUDAs(obj,"BM_ServerID",[1,0,0,0,0,UDA_Turns_ServerID])
+    addUDAs(obj,"BM_LookBack",[2,1,0,0,0,UDA_Turns_LookBack])
 
 
 def addUDAs_LineRoutes(Visum):
@@ -753,40 +753,29 @@ def addUDAs_TimeProfiles(Visum):
 def addUDAs_VehicleUnits(Visum):
 
     obj = Visum.Net.VehicleUnits
-    # UDAs formulae and constants
-    veh_length_formula = formula="12"
-    dt_func_formula = formula="1"
 
-    addUDAs(obj,"BM_VehLength",[225,0,0,0,0,0,0,0,veh_length_formula])
-    addUDAs(obj,"BM_DTFunction",[225,0,0,0,0,0,0,0,dt_func_formula])
+    addUDAs(obj,"BM_VehLength",[2,1,0,0,0,UDA_VehicleUnits_VehLength])
+    addUDAs(obj,"BM_DTFunction",[1,0,0,0,0,UDA_VehicleUnits_DTFunc])
 
 def addUDAs_VehicleJourneys(Visum):
 
     obj = Visum.Net.VehicleJourneys
-    # UDAs formulae and constants
-    # !! TO BE FIXED - ADD {..brackets..} below here:
-    numtrips_formula = formula="1"
 
     addUDAs(obj,"BM_TripID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_List_Trips",[5])
     addUDAs(obj,"BM_VehTypeID",[1,0,0,0,0,0])
-    addUDAs(obj,"BM_NumTrips",[225,0,0,0,0,0,0,0,numtrips_formula])
+    addUDAs(obj,"BM_NumTrips",[1,0,0,0,0,UDA_VehicleJourneys_NumTrips])
 
 def addUDAs_StopPoints(Visum):
 
     obj = Visum.Net.StopPoints
-    # UDAs formulae and constants
-    length_formula = formula="25"
-    stoptype_formula = formula="0"
-    can_overtake_formula = formula="0"
-    RTI_lvl_formula = formula="3"
 
     addUDAs(obj,"BM_StopLinkID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_Position",[2,1,0,0,0,0])
-    addUDAs(obj,"BM_Length",[225,1,0,0,0,0,0,0,length_formula])
-    addUDAs(obj,"BM_StopType",[225,0,0,0,0,0,0,0,stoptype_formula])
-    addUDAs(obj,"BM_CanOvertake",[225,0,0,0,0,0,0,0,can_overtake_formula])
-    addUDAs(obj,"BM_RTI_Level",[225,0,0,0,0,0,0,0,RTI_lvl_formula])
+    addUDAs(obj,"BM_Length",[2,1,0,0,0,UDA_StopPoints_StopLength])
+    addUDAs(obj,"BM_StopType",[2,1,0,0,0,UDA_StopPoints_StopType])
+    addUDAs(obj,"BM_CanOvertake",[2,1,0,0,0,UDA_StopPoints_CanOvertake])
+    addUDAs(obj,"BM_RTI_Level",[2,1,0,0,0,UDA_StopPoints_RTI_Level])
 
 if __name__ == "__main__":
     import sys, os, win32com.client
