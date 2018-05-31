@@ -151,8 +151,6 @@ def make_Transit_Network(Visum):
     ATTR_LIST_STOPAREAS = out_list.values()
     # quick-fix -  remove outer brackets
     ATTR_LIST_STOPAREAS = [i[0] for i in ATTR_LIST_STOPAREAS]
-    ### !!! sprawdzic to jeszcze
-    TYPE_LIST_STOPAREAS = [int, int, int, float]
 
     ### 2. ORIGIN/DESTINATION TRANSFERS - map Connectors(Zone<=>Stop) into additional walking links
 
@@ -185,18 +183,30 @@ def make_Transit_Network(Visum):
         out_conn_list.append(zone_connections)
 
     ATTR_LIST_CONNECTORS = out_conn_list
-    # quick-fix -  remove outer brackets
-    # ATTR_LIST_CONNECTORS = [i[0] for i in ATTR_LIST_STOPAREAS]
-    ### !!! sprawdzic to jeszcze
-    TYPE_LIST_CONNECTORS = [int, int, int, float]
 
-    ### 3. WRITE OUTPUT TO .DAT FILE
+    ### 3. MERGE STOP-TRANSFER LISTS
 
-    stops_dist_length = str(len(out_list) + len(out_conn_list))
+    input_stop_transfers_list = ATTR_LIST_STOPAREAS
+    input_stop_transfers_list.extend(ATTR_LIST_CONNECTORS)
+    origin_set = sorted(set([origin[0] for origin in input_stop_transfers_list]))
+    output_stop_transfers_list = [[row, 0] for row in np.array(origin_set)]
+
+    # merge duplicate entries for source connections and prepare final output list
+    for source_connections in input_stop_transfers_list:
+        row_id = find_source_point(source_connections, output_stop_transfers_list)
+        output_stop_transfers_list[row_id][1] += source_connections[1]
+        for connectors in source_connections[2:]:
+            output_stop_transfers_list[row_id].append(connectors)
+
+    ### 4. WRITE FINAL OUTPUT TO .DAT FILE
+
+    ATTR_LIST_STOPDISTANCES = output_stop_transfers_list
+    TYPE_LIST_STOPDISTANCES = [int, int, int, float]
+    stops_dist_length = str(len(ATTR_LIST_STOPDISTANCES))
+
     file.write("stops_distances: " + stops_dist_length + LINE_NEW)
     file.write("format: 1" + LINE_NEW)
-    addTable(file, "", ATTR_LIST_STOPAREAS, TYPE_LIST_STOPAREAS)
-    addTable(file, "", ATTR_LIST_CONNECTORS, TYPE_LIST_CONNECTORS)
+    addTable(file, "", ATTR_LIST_STOPDISTANCES, TYPE_LIST_STOPDISTANCES)
 
     # LINES / TRIPS data:
 

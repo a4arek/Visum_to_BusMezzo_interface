@@ -1,5 +1,5 @@
 ##### Visum fixed input - user-defined attributes (UDAs):
-UDA_LinkTypes_V0_min = 0.1          # default minimum driving speed [m/s]
+UDA_LinkTypes_V0_min = 0.2          # default minimum driving speed [m/s]
 UDA_LinkTypes_K_max = 20.1          # default maximum vehicle density [veh/km/lane]
 UDA_LinkTypes_K_min = 0.1           # default minimum vehicle density [veh/km/lane]
 UDA_Turns_ServerID = 0              # default server ID [-]
@@ -27,7 +27,7 @@ ATTR_LIST_ROUTES = ["BM_RouteID", "BM_Start_Node_No", "BM_End_Node_No", "BM_No_O
 # Mezzo - output attribute types
 TYPE_LIST_NODES = [int, int, float, float]
 TYPE_LIST_LINKTYPES = [int, int, float, float, float, float]
-TYPE_LIST_LINKS = [int, int, int, int, int, int, str]
+TYPE_LIST_LINKS = [int, int, int, float, int, int, str]
 TYPE_LIST_LINKS_HISTTIMES = [int, float]
 TYPE_LIST_TURNS = [int, int, int, int, int, int]
 TYPE_LIST_ROUTES = [int, int, int, int, str]

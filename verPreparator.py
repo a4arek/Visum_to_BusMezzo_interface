@@ -1,7 +1,7 @@
 from math import pow, ceil, log10
 import sys
 
-from fileWriter import calc_BM_list_of_elements, find_average_headway, \
+from fileWriter import calc_BM_list_of_elements, \
     str_int, convert_ConcatenatedMultiAttValues, numbering_offset, LIST_BEGIN, LIST_END
 
 from geometrical import get_spline_coords_of_Link, get_splitting_coords, find_nearest_intermediate_ref_Link_point, \
@@ -524,20 +524,39 @@ def adjust_TimeProfiles(Visum):
         sim_start_time_offset = Visum.Net.TimeSeriesCont.ItemByKey(1).AttValue("StartTime")
 
         try:
-            first_dep = tp.VehJourneys.GetMultiAttValues("Dep")[0][1]
-            first_dep_offset = first_dep - sim_start_time_offset
-            # relevant for format:2 - timetable-based BusMezzo assignment
-            dep_list = [str_int(row[1] - first_dep) for row in tp.VehJourneys.GetMultiAttValues("Dep")]
-            add_dep_list = calc_BM_list_of_elements(dep_list)
+            dep_times_all = [i[1] for i in tp.VehJourneys.GetMultiAttValues("Dep")]
+
+            for j, dep in enumerate(dep_times_all):
+                if dep >= sim_start_time_offset:
+                    break
+                else:
+                    pass
+
+            valid_dep_times = dep_times_all[j:]
+
             # relevant for format:3 - headway-based BusMezzo assignment
-            no_of_trips = tp.VehJourneys.Count
-            # for now - simplified (averaged) headway
-            # update 28-05-2018 - new function:
-            headway = find_average_headway(tp, sim_start_time_offset)
+            no_of_sim_trips = len(valid_dep_times)
+            last_dep_offset = valid_dep_times[-1]
+            first_dep_offset = valid_dep_times[0]
+
+            # simplified headway calculation -> average headway during simulation time
+            headway = str_int(60 * round(float(last_dep_offset - first_dep_offset) / no_of_sim_trips) / 60)
+            first_dep = first_dep_offset - sim_start_time_offset
+
+            # first_dep = tp.VehJourneys.GetMultiAttValues("Dep")[0][1]
+            # first_dep_offset = first_dep - sim_start_time_offset
+
+            # relevant for format:2 - timetable-based BusMezzo assignment
+            valid_timetable = [(dep_time - first_dep_offset) for dep_time in valid_dep_times]
+            add_dep_list = calc_BM_list_of_elements(valid_timetable)
+
+            # dep_list = [str_int(row[1] - first_dep) for row in tp.VehJourneys.GetMultiAttValues("Dep")]
+            # add_dep_list = calc_BM_list_of_elements(dep_list)
+
+            # no_of_trips = tp.VehJourneys.Count
 
         except:
             # in case no VehJourneys are defined for this TimeProfile:
-
             first_dep = 0
             first_dep_offset = 0
             dep_list = ""
@@ -552,7 +571,7 @@ def adjust_TimeProfiles(Visum):
         tp.SetAttValue("BM_No_of_RunTimes",no_of_tp_segments)
         tp.SetAttValue("BM_List_RunTimes",add_tp_list)
         tp.SetAttValue("BM_Headway",headway)
-        tp.SetAttValue("BM_First_Dispatch_Time",first_dep_offset)
+        tp.SetAttValue("BM_First_Dispatch_Time",first_dep)
         tp.SetAttValue("BM_List_DispTimes",add_dep_list)
 
         Iterator.Next()

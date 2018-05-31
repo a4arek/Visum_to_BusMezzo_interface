@@ -29,19 +29,21 @@ def appendDataLine(file, line, type_list):
 
     toAdd = LIST_BEGIN
     for i, raw_field in enumerate(line):
-        try:
-            datatype = type_list[i]
-        except:
-            # exception required for STOP_AREAS only
-            datatype = type_list[-1]
+
         if isinstance(raw_field, list):
+        # exception accessed for STOP_TRANSFERS only - make_Transit_Demand(Visum)
+            list_len = -1* len(raw_field)
+            datatype = type_list[list_len:]
             toAdd += LIST_BEGIN
-            for raw_nested_field in raw_field:
+            for j, raw_nested_field in enumerate(raw_field):
                     # toAdd += LINE_TAB + '{0:.1f}'.format(float(nested_field))
-                    nested_field = datatype(raw_nested_field)
+                    nested_field = datatype[j](raw_nested_field)
                     toAdd += LINE_TAB + addField(nested_field)
             toAdd += LINE_TAB + LIST_END
+
         else:
+        # all other instances in the make_BM(Visum):
+            datatype = type_list[i]
             field = datatype(raw_field)
             add = addField(field)
             toAdd += LINE_TAB + add
@@ -114,6 +116,7 @@ def numbering_offset(Visum_Object_List_Creator):
 def find_average_headway(Visum_Time_Profile, sim_start_time):
     # simplified calculation of average headway
     # calculated as (line operating time period) / (no. of trips during simulation time)
+    # update 30-05-2018 - function now obsolete - calculation moved into adjust_Time_Profiles(Visum)
 
     dep_times_all = [i[1] for i in Visum_Time_Profile.VehJourneys.GetMultiAttValues("Dep")]
 
@@ -123,12 +126,24 @@ def find_average_headway(Visum_Time_Profile, sim_start_time):
         else:
             pass
 
-    no_of_sim_trips = int(len(dep_times_all) - j)
+    valid_dep_times = dep_times_all[j:]
+    no_of_sim_trips = len(valid_dep_times)
     last_dep = dep_times_all[-1]
-    first_dep = dep[j]
+    first_dep = dep_times_all[j]
 
     average_headway = str_int(60* round(float(last_dep - first_dep) / no_of_sim_trips)/60)
 
-    return average_headway
+    return average_headway, no_of_sim_trips
 
+def find_source_point(input_source_conn, output_stop_list):
+
+    source_id = input_source_conn[0]
+
+    for i, zone_id in enumerate(output_stop_list):
+        if zone_id[0] == source_id:
+            break
+
+    output_row_index = i
+
+    return output_row_index
 
