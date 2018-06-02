@@ -390,13 +390,13 @@ def adjust_Nodes(Visum):
 def adjust_Links(Visum):
     # {links} - assign LinkID values
     empty_list = list(Visum.Net.Links.GetMultiAttValues("No"))
-    b = list()
-    for i, a in enumerate(empty_list):
-        link_index = a[0]
-        b.append([link_index,i+1])
+    link_ids = list()
+    for i, link_obj in enumerate(empty_list):
+        link_index = link_obj[0]
+        link_ids.append([link_index, i+1])
         i += 1
-    print b
-    Visum.Net.Links.SetMultiAttValues("BM_LinkID", b)
+    print link_ids
+    Visum.Net.Links.SetMultiAttValues("BM_LinkID", link_ids)
 
 def adjust_Connectors(Visum):
     # (connectors) - assign Orig and Dest points or lists (BM_Zone_ID, StopAreaNo)
@@ -418,6 +418,14 @@ def adjust_Connectors(Visum):
 
 def adjust_Turns(Visum):
     # (turns} - assign TurnID and In/Out_LinkID values
+
+    turn_ids = list()
+    no_of_turns = Visum.Net.Turns.Count
+    i = 1
+    while i < no_of_turns+1:
+        turn_ids.append([i,i])
+        i += 1
+    Visum.Net.Turns.SetMultiAttValues("BM_TurnID", turn_ids)
 
     Visum.Net.Turns.SetMultiAttValues("BM_InLInkID", Visum.Net.Turns.GetMultiAttValues("FromLink\BM_LinkID"))
     Visum.Net.Turns.SetMultiAttValues("BM_OUtLInkID", Visum.Net.Turns.GetMultiAttValues("ToLink\BM_LinkID"))
@@ -539,8 +547,8 @@ def adjust_TimeProfiles(Visum):
             last_dep_offset = valid_dep_times[-1]
             first_dep_offset = valid_dep_times[0]
 
-            # simplified headway calculation -> average headway during simulation time
-            headway = str_int(60 * round(float(last_dep_offset - first_dep_offset) / no_of_sim_trips) / 60)
+            # simplified headway calculation -> average headway during simulation time, rounded to 30 secs
+            headway = str_int(30 * round(float(last_dep_offset - first_dep_offset) / no_of_sim_trips / 30))
             first_dep = first_dep_offset - sim_start_time_offset
 
             # first_dep = tp.VehJourneys.GetMultiAttValues("Dep")[0][1]
@@ -713,7 +721,7 @@ def addUDAs_LinkTypes(Visum):
 
     obj = Visum.Net.LinkTypes
     # UDAs formulae and constants
-    UDA_LinkTypes_v0_PrT_formula = formula="max(0.1,[V0PrT]/3.6)"
+    UDA_LinkTypes_v0_PrT_formula = formula="max(0.3,[V0PrT]/3.6)"
 
     addUDAs(obj,"BM_SDID_Function",[1,0,0,0,0,0])
     addUDAs(obj,"BM_V0PrT",[225,1,0,0,0,0,0,0,UDA_LinkTypes_v0_PrT_formula])
@@ -766,7 +774,7 @@ def addUDAs_TimeProfiles(Visum):
     # relevant in case of format:3 only:
     addUDAs(obj,"BM_Headway",[1,0,0,0,0,0])
     # relevant in case of format:2 only:
-    # Visum.Net.TimeProfiles.AddUserDefinedAttribute("BM_List_DispTimes", "BM_List_DispTimes", "BM_List_DispTimes", 62)
+    Visum.Net.TimeProfiles.AddUserDefinedAttribute("BM_List_DispTimes", "BM_List_DispTimes", "BM_List_DispTimes", 62)
     addUDAs(obj,"BM_List_DispTimes",[62])
 
 def addUDAs_VehicleUnits(Visum):
