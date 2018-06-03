@@ -1,8 +1,16 @@
+# [BMcreator] - final part of the V-BM importer - produce output BusMezzo network (.dat) files
+
 import numpy as np
 
 from visumAttributes import *
 from fileWriter import *
 
+
+#####################################################
+## 5. PRODUCE OUTPUT BUSMEZZO (.DAT) NETWORK FILES ##
+#####################################################
+
+## Mezzo input files
 
 def make_Demand(Visum):
     MAIN_PATH = Visum.GetPath(2)
@@ -68,7 +76,8 @@ def make_Routes(Visum):
     addTable(file, "routes",Visum.Net.LineRoutes.GetMultipleAttributes(ATTR_LIST_ROUTES), TYPE_LIST_ROUTES)
     file.close()
 
-# BusMezzo input files
+
+## BusMezzo input files
 
 def make_Transit_Demand(Visum):
     MAIN_PATH = Visum.GetPath(2)
@@ -214,8 +223,8 @@ def make_Transit_Network(Visum):
     addTable(file,"",Visum.Net.LineRoutes.GetMultipleAttributes(ATTR_LIST_LINEROUTES), TYPE_LIST_LINEROUTES)
     file.write("trips: " + str(Visum.Net.LineRoutes.Count) + LINE_NEW)
     # if trips format:2
-    file.write("format: 2" + LINE_NEW)
-    addTable(file,"",Visum.Net.TimeProfiles.GetMultipleAttributes(ATTR_LIST_TIMEPROFILES_format2), TYPE_LIST_TIMEPROFILES_format2)
+    # file.write("format: 2" + LINE_NEW)
+    # addTable(file,"",Visum.Net.TimeProfiles.GetMultipleAttributes(ATTR_LIST_TIMEPROFILES_format2), TYPE_LIST_TIMEPROFILES_format2)
     # if trips format:3
     file.write("format: 3" + LINE_NEW)
     addTable(file,"",Visum.Net.TimeProfiles.GetMultipleAttributes(ATTR_LIST_TIMEPROFILES_format3), TYPE_LIST_TIMEPROFILES_format3)
@@ -229,6 +238,208 @@ def make_Transit_Routes(Visum):
     file = open(MAIN_PATH + '\\transit_routes.dat', 'w')
     addTable(file, "routes", Visum.Net.LineRoutes.GetMultipleAttributes(ATTR_LIST_ROUTES), TYPE_LIST_ROUTES)
     file.close()
+
+
+## other M/BM files - fixed input
+
+def make_Allmoes(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\allmoes.dat', 'w')
+    file.write("MOES" + LINE_NEW)
+    file.close()
+
+def make_Assign(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\assign.dat', 'w')
+    file.write("no_obs_links: 0" + LINE_NEW)
+    file.write("no_link_pers: 12" + LINE_NEW)
+    file.write(LIST_BEGIN + "link_period: 0" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 1" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 2" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 3" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 4" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 5" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 6" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 7" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 8" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 9" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 10" + LIST_END_NL)
+    file.write(LIST_BEGIN + "link_period: 11" + LIST_END_NL)
+    file.close()
+
+def make_V_Queues(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\v_queues.dat', 'w')
+    file.write("" + LINE_NEW)
+    file.close()
+
+def make_Virtual_Links(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\virtuallinks.dat', 'w')
+    file.write("virtuallinks: 0" + LINE_NEW)
+    file.close()
+
+def make_NoIncident(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\noincident.dat', 'w')
+    file.write("sdfuncs: 0" + LINE_NEW)
+    file.write("incidents: 0" + LINE_NEW)
+    file.write("parameters: 4" + LINE_NEW)
+    file.write(LIST_BEGIN + "1.0 0.1" + LIST_END_NL)
+    file.write(LIST_BEGIN + "1.0 0.1" + LIST_END_NL)
+    file.write(LIST_BEGIN + "1.0 0.1" + LIST_END_NL)
+    file.write(LIST_BEGIN + "1.0 0.1" + LIST_END_NL)
+    file.write("X1:" + LINE_NEW)
+    file.write(LIST_BEGIN + "2.0 0.5" + LIST_END_NL)
+    file.close()
+
+def make_Assign_Links(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\assign_links.dat', 'w')
+    file.write("no_obs_links: 0" + LINE_NEW)
+    file.write(LIST_BEGIN + " " + LIST_END)
+    file.close()
+
+def make_Server_Rates(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\serverrates.dat', 'w')
+    file.write("rates: 0" + LINE_NEW)
+    file.close()
+
+def make_Signal(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\signal.dat', 'w')
+    file.write("controls: 0" + LINE_NEW)
+    file.close()
+
+
+## Mezzo masterfile (fixed input)
+
+def make_Mezzo_Masterfile(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\masterfile.mezzo', 'w')
+
+    file.write("	#input_files	" + LINE_NEW)
+    file.write("	network= net.dat	" + LINE_NEW)
+    file.write("	turnings= turnings.dat	" + LINE_NEW)
+    file.write("	signals= signal.dat	" + LINE_NEW)
+    file.write("	histtimes= histtimes.dat	" + LINE_NEW)
+    file.write("	routes= routes.dat	" + LINE_NEW)
+    file.write("	demand= demand.dat	" + LINE_NEW)
+    file.write("	incident= noincident.dat	" + LINE_NEW)
+    file.write("	vehicletypes= vehiclemix.dat	" + LINE_NEW)
+    file.write("	virtuallinks= virtuallinks.dat	" + LINE_NEW)
+    file.write("	serverrates= serverrates.dat	" + LINE_NEW)
+    file.write("	#output_files	" + LINE_NEW)
+    file.write("	linktimes= output/linktimes.dat	" + LINE_NEW)
+    file.write("	output= output/output.dat	" + LINE_NEW)
+    file.write("	summary= output/summary.dat	" + LINE_NEW)
+    file.write("	speeds= output/speeds.dat	" + LINE_NEW)
+    file.write("	inflows= output/inflows.dat	" + LINE_NEW)
+    file.write("	outflows= output/outflows.dat	" + LINE_NEW)
+    file.write("	queuelengths= output/queuelengths.dat	" + LINE_NEW)
+    file.write("	densities= output/densities.dat	" + LINE_NEW)
+    file.write("	#scenario	" + LINE_NEW)
+    file.write("	starttime= 0	" + LINE_NEW)
+    file.write("	stoptime= 10800	" + LINE_NEW)
+    file.write("	calc_paths= 0	" + LINE_NEW)
+    file.write("	traveltime_alpha= 0.4	" + LINE_NEW)
+    file.write("	parameters= parameters.dat	" + LINE_NEW)
+    file.write("	nobackground= 	" + LINE_NEW)
+
+    file.close()
+
+
+## Parameters' file (fixed input)
+
+def make_Parameters(Visum):
+    MAIN_PATH = Visum.GetPath(2)
+    file = open(MAIN_PATH+'\\parameters.dat', 'w')
+
+    file.write("	#drawing_parameters	" + LINE_NEW)
+    file.write("	   draw_link_ids= 0	" + LINE_NEW)
+    file.write("	   link_thickness= 1	" + LINE_NEW)
+    file.write("	   node_thickness= 1	" + LINE_NEW)
+    file.write("	   node_radius= 3	" + LINE_NEW)
+    file.write("	   queue_thickness= 6	" + LINE_NEW)
+    file.write("	   selected_thickness= 10	" + LINE_NEW)
+    file.write("	   show_background_image= 1	" + LINE_NEW)
+    file.write("	   linkcolor= black	" + LINE_NEW)
+    file.write("	   nodecolor= black	" + LINE_NEW)
+    file.write("	   queuecolor= red	" + LINE_NEW)
+    file.write("	   backgroundcolor= white	" + LINE_NEW)
+    file.write("	   selectedcolor= green	" + LINE_NEW)
+    file.write("	   gui_update_step= 0.2	" + LINE_NEW)
+    file.write("	#moe_parameters	" + LINE_NEW)
+    file.write("	   moe_speed_update= 60.0	" + LINE_NEW)
+    file.write("	   moe_inflow_update= 60.0	" + LINE_NEW)
+    file.write("	   moe_outflow_update= 60.0	" + LINE_NEW)
+    file.write("	   moe_queue_update= 60.0	" + LINE_NEW)
+    file.write("	   moe_density_update= 60.0	" + LINE_NEW)
+    file.write("	   linktime_alpha= 0.2	" + LINE_NEW)
+    file.write("	#assignment_matrix_parameters	" + LINE_NEW)
+    file.write("	   use_ass_matrix= 1	" + LINE_NEW)
+    file.write("	   ass_link_period= 900.0	" + LINE_NEW)
+    file.write("	   ass_od_period= 900.0	" + LINE_NEW)
+    file.write("	#turning_parameters	" + LINE_NEW)
+    file.write("	   default_lookback_size= 20	" + LINE_NEW)
+    file.write("	   turn_penalty_cost= 99999.0	" + LINE_NEW)
+    file.write("	#server_parameters	" + LINE_NEW)
+    file.write("	   od_servers_deterministic= 1	" + LINE_NEW)
+    file.write("	   odserver_sigma= 0.2	" + LINE_NEW)
+    file.write("	   sd_server_scale= 1.0	" + LINE_NEW)
+    file.write("	   server_type= 3	" + LINE_NEW)
+    file.write("	#vehicle_parameters	" + LINE_NEW)
+    file.write("	   standard_veh_length= 7	" + LINE_NEW)
+    file.write("	#route_parameters	" + LINE_NEW)
+    file.write("	   update_interval_routes= 60.0	" + LINE_NEW)
+    file.write("	   mnl_theta= -0.5	" + LINE_NEW)
+    file.write("	   kirchoff_alpha= -1.0	" + LINE_NEW)
+    file.write("	   delete_bad_routes= 0	" + LINE_NEW)
+    file.write("	   max_rel_route_cost= 20.0	" + LINE_NEW)
+    file.write("	   small_od_rate= 0.0	" + LINE_NEW)
+    file.write("	#mime_parameters	" + LINE_NEW)
+    file.write("	   mime_comm_step= 0.4	" + LINE_NEW)
+    file.write("	   mime_min_queue_length= 20	" + LINE_NEW)
+    file.write("	   mime_queue_dis_speed= 6	" + LINE_NEW)
+    file.write("	   vissim_step= 0.1	" + LINE_NEW)
+    file.write("	   sim_speed_factor= 1.9	" + LINE_NEW)
+    file.write("	#transit_demand_parameters	" + LINE_NEW)
+    file.write("	   demand_format= 3	" + LINE_NEW)
+    file.write("	   demand_scale= 1.0	" + LINE_NEW)
+    file.write("	   choice_set_indicator= 0	" + LINE_NEW)
+    file.write("	   pass_day_to_day_indicator= 0	" + LINE_NEW)
+    file.write("	   in_vehicle_d2d_indicator= 0	" + LINE_NEW)
+    file.write("	   break_criterium= 0	" + LINE_NEW)
+    file.write("	   transfer_coefficient= -0.40	" + LINE_NEW)
+    file.write("	   in_vehicle_time_coefficient= -0.20	" + LINE_NEW)
+    file.write("	   waiting_time_coefficient= -0.20	" + LINE_NEW)
+    file.write("	   walking_time_coefficient= -0.20	" + LINE_NEW)
+    file.write("	   average_walking_speed= 84.0	" + LINE_NEW)
+    file.write("	   max_nr_extra_transfers= 3	" + LINE_NEW)
+    file.write("	   absolute_max_transfers= 4	" + LINE_NEW)
+    file.write("	   max_in_vehicle_time_ratio= 4.0	" + LINE_NEW)
+    file.write("	   max_walking_distance= 2500.0	" + LINE_NEW)
+    file.write("	   max_waiting_time= 2400.0	" + LINE_NEW)
+    file.write("	   dominancy_perception_threshold= 40.0	" + LINE_NEW)
+    file.write("	   choice_model= 1	" + LINE_NEW)
+    file.write("	   real_time_info= 3	" + LINE_NEW)
+    file.write("	   share_RTI_network= 1	" + LINE_NEW)
+    file.write("	   start_pass_generation= 0	" + LINE_NEW)
+    file.write("	   stop_pass_generation= 3600	" + LINE_NEW)
+    file.write("	   od_pairs_for_generation= 0	" + LINE_NEW)
+    file.write("	#transit_control_parameters	" + LINE_NEW)
+    file.write("	   riding_time_weight= 1.0	" + LINE_NEW)
+    file.write("	   dwell_time_weight= 1.0	" + LINE_NEW)
+    file.write("	   waiting_time_weight= 2.0	" + LINE_NEW)
+    file.write("	   holding_time_weight= 2.5	" + LINE_NEW)
+    file.write("	#day2day_assignment	" + LINE_NEW)
+    file.write("	   default_alpha_RTI= 0.7	" + LINE_NEW)
+    file.write("	   visim_step= 0.10	" + LINE_NEW)
+    file.write("	   sim_speed_factor= 1.89	" + LINE_NEW)
+
+    file.close()
+
 
 if __name__ == "__main__":
     pass

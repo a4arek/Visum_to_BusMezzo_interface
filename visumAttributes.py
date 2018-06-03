@@ -1,10 +1,15 @@
+# [visumAttributes] - sets of V-to-BM input and output attributes
+
 ##### Visum fixed input - user-defined attributes (UDAs):
+
+# general network model
 UDA_LinkTypes_V0_min = 0.1          # default minimum driving speed [m/s]
 UDA_LinkTypes_K_max = 20.1          # default maximum vehicle density [veh/km/lane]
 UDA_LinkTypes_K_min = 0.1           # default minimum vehicle density [veh/km/lane]
 UDA_Turns_ServerID = 0              # default server ID [-]
 UDA_Turns_LookBack = 40.0           # default look-back distance [m]
 
+# PuT network model
 UDA_VehicleUnits_VehLength = 12.0   # default PuT vehicle length [m]
 UDA_VehicleUnits_DTFunc = 1         # default dwell-time function [-]
 UDA_VehicleJourneys_NumTrips = 1    # default no. of trips [-] (simplified driving roster - quick-fix for now)
@@ -14,7 +19,7 @@ UDA_StopPoints_CanOvertake = 0      # default overtaking capability [-]
 UDA_StopPoints_RTI_Level = 3        # default RTI level (network-level = 3) [-]
 UDA_StopPoints_DefaultRelPos = 0.49 # default stop relative position factor [-] (used in adjust_Nodes(Visum))
 
-# MatNo = '121'   # quick-fix_AD
+##### BusMezzo output attribute sets
 
 # Mezzo network input
 ATTR_LIST_NODES = ["No", "BM_NodeType", "XCoord", "YCoord"]

@@ -1,3 +1,5 @@
+# [verPreparator] - add and adjust Visum network attributes, which are necessary before the BM export
+
 from math import pow, ceil, log10
 import sys
 
@@ -9,9 +11,9 @@ from geometrical import get_spline_coords_of_Link, get_splitting_coords, find_ne
 from visumAttributes import *
 
 
-#################################
-## 0a. ADD EXTRA VISUM OBJECTS ##
-#################################
+#######################################
+## 1. MODIFY EXISTING VISUM OBJECTS  ##
+#######################################
 
 # add necessary objects and modify Visum network before BusMezzo import
 
@@ -96,6 +98,7 @@ def modify_network_Zones(Visum):
 
     #     Iterator.Next()
 
+# modify_Connectors - NOT USED so far
 def modify_network_Connectors(Visum):
 
     # disabled 28-05-2018 - not necessary anymore (connectors added as stop transfers instead)
@@ -118,6 +121,7 @@ def modify_network_Connectors(Visum):
 
         Iterator.Next()
 
+# modify_StopPoints - NOT USED so far
 def modify_network_StopPoints(Visum):
     # add StopPoint Links (split) and set RelativePosition
 
@@ -345,27 +349,26 @@ def modify_network_StopPoints(Visum):
 
 
 #########################################
-## 2. ADJUST SPECIFIC VISUM ATTRIBUTES ##
+## 3. ADJUST SPECIFIC VISUM ATTRIBUTES ##
 #########################################
 
 # adjust selected Visum input attributes and evaluate the UDAs for subsequent BusMezzo export
 
 def adjust_Nodes(Visum):
-    # {nodes} - assign NodeType values
 
-    ## NEEDS TO BE FIXED!!
+    # BM {nodes} - assign NodeType values
     Iterator = Visum.Net.LineRoutes.Iterator
     while Iterator.Valid:
         lr = Iterator.Item
         sp_list = lr.LineRouteItems.GetMultiAttValues("StopPointNo")
 
-        # for start stop - set the BM_NodeType of FromNodeNo (accessed directly)
+        # for start stop - set the BM_NodeType=1 of FromNodeNo (accessed directly)
         start_stop_no = int(sp_list[0][1])
         from_node_no = Visum.Net.StopPoints.ItemByKey(start_stop_no).AttValue("FromNodeNo")
         start_node = Visum.Net.Nodes.ItemByKey(from_node_no)
         start_node.SetAttValue("BM_NodeType",1)
 
-        # for end stop - set the BM_NodeType of ToNodeNo (accessed via the Link object)
+        # for end stop - set the BM_NodeType=3 of ToNodeNo (accessed via the Link object)
         end_stop_no = int(sp_list[len(lr.LineRouteItems)-1][1])
         from_node_no = Visum.Net.StopPoints.ItemByKey(end_stop_no).AttValue("FromNodeNo")
         link_no = Visum.Net.StopPoints.ItemByKey(end_stop_no).AttValue("LinkNo")
@@ -375,6 +378,7 @@ def adjust_Nodes(Visum):
 
         Iterator.Next()
 
+    # for all other (intermediate) nodes - set the BM_NodeType=2
     Iterator = Visum.Net.Nodes.Iterator
     while Iterator.Valid:
         nd = Iterator.Item
@@ -388,19 +392,20 @@ def adjust_Nodes(Visum):
         Iterator.Next()
 
 def adjust_Links(Visum):
-    # {links} - assign LinkID values
+
+    # BM {links} - assign LinkID values
     empty_list = list(Visum.Net.Links.GetMultiAttValues("No"))
     link_ids = list()
     for i, link_obj in enumerate(empty_list):
         link_index = link_obj[0]
         link_ids.append([link_index, i+1])
         i += 1
-    print link_ids
     Visum.Net.Links.SetMultiAttValues("BM_LinkID", link_ids)
 
 def adjust_Connectors(Visum):
-    # (connectors) - assign Orig and Dest points or lists (BM_Zone_ID, StopAreaNo)
 
+    # (connectors) - assign Orig and Dest points or lists (BM_Zone_ID, StopAreaNo)
+    # eventually - these will be mapped as BM {stop_distances}
     Iterator = Visum.Net.Connectors.Iterator
 
     while Iterator.Valid:
@@ -417,8 +422,8 @@ def adjust_Connectors(Visum):
         Iterator.Next()
 
 def adjust_Turns(Visum):
-    # (turns} - assign TurnID and In/Out_LinkID values
 
+    # BM {turnings} - assign TurnID and In/Out_LinkID values
     turn_ids = list()
     no_of_turns = Visum.Net.Turns.Count
     i = 1
@@ -433,6 +438,7 @@ def adjust_Turns(Visum):
 
 def adjust_LineRoutes(Visum):
 
+    # BM {lines} - assign necessary LineRoute attributes and run/profile data
     Iterator = Visum.Net.LineRoutes.Iterator
     line_no = 1
 
@@ -451,7 +457,7 @@ def adjust_LineRoutes(Visum):
 
         line_course = Iterator.Item.LineRouteItems.GetMultiAttValues("InLink\BM_LinkID")
 
-        # !!! UPDATE LINKS AND TURNS FOR FILTERING - HERE!
+        # !! IMPORTANT !! - UPDATE LINKS FOR FILTERING HERE
         Visum_list_links = convert_ConcatenatedMultiAttValues(link_list)
         Visum_list_fromnodes = convert_ConcatenatedMultiAttValues(from_node_list)
         id = 1
@@ -483,7 +489,7 @@ def adjust_LineRoutes(Visum):
         # find end stop
         end_stop = stop_list[len(stop_list)-1][1]
 
-        # convert Visum lists into "BusMezzo-tailored" strings
+        # convert Visum attribute lists into "BusMezzo-tailored" strings
         conv_stop_list = convert_ConcatenatedMultiAttValues(stop_list)
         conv_line_course = convert_ConcatenatedMultiAttValues(line_course)
         no_stops = len(conv_stop_list)
@@ -494,6 +500,7 @@ def adjust_LineRoutes(Visum):
         opp_line_no = 1000 - line_no
         line_name = '_'.join([ln,dir,lrn])
 
+        # set the BusMezzo-tailored UDA values
         Iterator.Item.SetAttValue("BM_RouteID",line_no)
         Iterator.Item.SetAttValue("BM_OppositeRouteID",opp_line_no)
         Iterator.Item.SetAttValue("BM_RouteName", line_name)
@@ -513,8 +520,8 @@ def adjust_LineRoutes(Visum):
         Iterator.Next()
 
 def adjust_TimeProfiles(Visum):
-    # {trips} - assign selected attributes
 
+    # BM {trips} - assign selected TimeProfile attributes
     Iterator = Visum.Net.TimeProfiles.Iterator
 
     while Iterator.Valid:
@@ -575,6 +582,7 @@ def adjust_TimeProfiles(Visum):
         # trip ID: BM_TimeProfileID = BM_LineRouteID
         tp_id = tp.AttValue("LineRoute\BM_RouteID")
 
+        # set the BusMezzo-tailored UDA values
         tp.SetAttValue("BM_TimeProfileID",tp_id)
         tp.SetAttValue("BM_No_of_RunTimes",no_of_tp_segments)
         tp.SetAttValue("BM_List_RunTimes",add_tp_list)
@@ -585,9 +593,9 @@ def adjust_TimeProfiles(Visum):
         Iterator.Next()
 
 def adjust_VehicleJourneys(Visum):
-    # {trips} - assign VehTypeID
     # nested iterator - (1.) LineRoutes => (2.) VehJourneys
 
+    # BM {trips} - assign VehTypeID
     Iterator = Visum.Net.LineRoutes.Iterator
 
     while Iterator.Valid:
@@ -604,6 +612,8 @@ def adjust_VehicleJourneys(Visum):
         Iterator2 = lr.TimeProfiles.ItemByKey(ln,dir,lrn,tp_code).VehJourneys.Iterator
         vj_id = 1
 
+        # BM {vehicle scheduling} - assign driving roster data
+        # (simplified assumptions so far - one trip per each vehicle only)
         while Iterator2.Valid:
             vehtrip = Iterator2.Item
 
@@ -641,6 +651,7 @@ def adjust_VehicleJourneys(Visum):
 
 def adjust_StopPoints(Visum):
 
+    # BM {stops} - get LinkID and set RelativePosition on Link
     Iterator = Visum.Net.StopPoints.Iterator
 
     while Iterator.Valid:
@@ -650,7 +661,6 @@ def adjust_StopPoints(Visum):
         sp_link_no = sp.AttValue("LinkNo")
         sp_fromnode = sp.AttValue("FromNodeNo")
 
-        print "SP_no: ", sp.AttValue("No"), "SA_no: ", sp.AttValue("StopAreaNo")
         sp_link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_fromnode)
         sp_link_id = sp_link.AttValue("BM_LinkID")
 
@@ -666,7 +676,7 @@ def adjust_StopPoints(Visum):
 
 
 ####################################################
-## 1. ADD NECESSARY VISUM USER-DEFINED ATTRIBUTES ##
+## 2. ADD NECESSARY VISUM USER-DEFINED ATTRIBUTES ##
 ####################################################
 
 def addUDAs(_obj, _name, _call):

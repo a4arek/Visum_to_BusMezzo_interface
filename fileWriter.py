@@ -1,5 +1,8 @@
+# [fileWriter] - building blocks, constants and functions
+
 import math
-# constants
+
+### building blocks and constants
 
 LIST_BEGIN = "{"
 LIST_END = "}"
@@ -9,6 +12,7 @@ LINE_NEW = "\n"
 VISUM_CONCAT_DELIM = ","
 LOG_HEADER = "-"*50+"\n\t"
 
+### mapping functions
 
 def logPrinter(msg, msg_type = 'finished', Visum = None):
     msg = LOG_HEADER + str(msg) + "\t:\t" + msg_type
@@ -17,8 +21,8 @@ def logPrinter(msg, msg_type = 'finished', Visum = None):
 
     print(msg)
 
-
 def addTable(file, name, table, type_list):
+    # add new BM {object category}
     if name != "":
         file.write(name + ":" + LINE_TAB+str(len(table)) + "\n")
     for line in table:
@@ -26,6 +30,7 @@ def addTable(file, name, table, type_list):
     file.write(LINE_NEW)
 
 def appendDataLine(file, line, type_list):
+    # add new BM {object instance}
 
     toAdd = LIST_BEGIN
     for i, raw_field in enumerate(line):
@@ -51,6 +56,7 @@ def appendDataLine(file, line, type_list):
     file.write(toAdd)
 
 def addField (field):
+    # add BM parameter of specific format
     if isinstance(field, int):
         return '{:1}'.format(int(field))
     elif isinstance(field, float):
@@ -62,6 +68,8 @@ def addField (field):
     else:
         return str(0)
 
+
+### auxilliary functions for mapping/adjusting procedures:
 
 def str_int(in_float):
     # converts float number into string(integer) - NO decimal places
@@ -98,7 +106,6 @@ def calc_BM_list_of_elements(in_int_list):
     out_str_list = LIST_BEGIN + ' '.join(map(str, in_int_list)) + LIST_END
     return(out_str_list)
 
-
 def numbering_offset(Visum_Object_List_Creator):
     # calculates the numbering offset of Visum Net elements
     # as a further order of magnitude
@@ -113,29 +120,8 @@ def numbering_offset(Visum_Object_List_Creator):
 
     return output_offset
 
-def find_average_headway(Visum_Time_Profile, sim_start_time):
-    # simplified calculation of average headway
-    # calculated as (line operating time period) / (no. of trips during simulation time)
-    # update 30-05-2018 - function now obsolete - calculation moved into adjust_Time_Profiles(Visum)
-
-    dep_times_all = [i[1] for i in Visum_Time_Profile.VehJourneys.GetMultiAttValues("Dep")]
-
-    for j, dep in enumerate(dep_times_all):
-        if dep >= sim_start_time:
-            break
-        else:
-            pass
-
-    valid_dep_times = dep_times_all[j:]
-    no_of_sim_trips = len(valid_dep_times)
-    last_dep = dep_times_all[-1]
-    first_dep = dep_times_all[j]
-
-    average_headway = str_int(60* round(float(last_dep - first_dep) / no_of_sim_trips)/60)
-
-    return average_headway, no_of_sim_trips
-
 def find_source_point(input_source_conn, output_stop_list):
+    # used in {stop_distances} mapping - find the ZoneID index
 
     source_id = input_source_conn[0]
 

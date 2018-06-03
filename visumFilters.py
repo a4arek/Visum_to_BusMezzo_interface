@@ -1,10 +1,12 @@
+# [visumFilters] - necessary filters for several Visum object categories
 
-###############################################################
-# 3. FILTER VISUM OBJECTS BEFORE IMPORTING THEM TO BUSMEZZO  ##
-###############################################################
+#################################################################
+# 4. FILTER VISUM OBJECTS BEFORE IMPORTING THEM INTO BUSMEZZO  ##
+#################################################################
 
 
 def filter_Links(Visum):
+    # filter out only those Links which form a part of at least one LineRoute segment
 
     Iterator = Visum.Net.Links.Iterator
 
@@ -20,6 +22,7 @@ def filter_Links(Visum):
         Iterator.Next()
 
 def filter_Turns(Visum):
+    # filter out Turns between active Links only
 
     Iterator = Visum.Net.Turns.Iterator
 
@@ -46,7 +49,7 @@ def filter_Turns(Visum):
         Iterator.Next()
 
 def filter_LinkTypes(Visum):
-    # should be OK but doesn't work now - since LinkTypes cannot be set (in)active in Visum yet
+    # should be OK but it's obsolete (and not used) for now - since LinkTypes cannot be set (in)active in Visum yet
 
     Iterator = Visum.Net.LinkTypes.Iterator
 
