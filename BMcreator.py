@@ -47,10 +47,14 @@ def make_Net(Visum):
 
     file = open(MAIN_PATH+'\\net.dat', 'w')
     addTable(file,"servers",[[0,0,0,0,0]], [int, int, int, int, int])
-    node_table = Visum.Net.Nodes.GetMultipleAttributes(ATTR_LIST_NODES)
-    for node in node_table:
+    node_table = list()
+    # handle exception issue #6
+
+    for i, node in enumerate(list(Visum.Net.Nodes.GetMultipleAttributes(ATTR_LIST_NODES))):
+        n = list(node)
         if int(node[1]) == 2:
-            node.append(0)
+            n.append(0)
+        node_table.append(tuple(n))
     addTable(file, "nodes", node_table, TYPE_LIST_NODES)
     addTable(file,"sdfuncs", Visum.Net.LinkTypes.GetMultipleAttributes(ATTR_LIST_LINKTYPES, True), TYPE_LIST_LINKTYPES)
     addTable(file,"links", Visum.Net.Links.GetMultipleAttributes(ATTR_LIST_LINKS, True), TYPE_LIST_LINKS)

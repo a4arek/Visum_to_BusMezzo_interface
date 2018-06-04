@@ -30,7 +30,7 @@ ATTR_LIST_TURNS = ["BM_TurnID", "ViaNodeNo", "BM_ServerID", "BM_InLinkID", "BM_O
 ATTR_LIST_ROUTES = ["BM_RouteID", "BM_Start_Node_No", "BM_End_Node_No", "BM_No_Of_Links", "BM_List_Links"]
 
 # Mezzo - output attribute types
-TYPE_LIST_NODES = [int, int, float, float]
+TYPE_LIST_NODES = [int, int, float, float, int]
 TYPE_LIST_LINKTYPES = [int, int, float, float, float, float]
 TYPE_LIST_LINKS = [int, int, int, int, int, int]
 TYPE_LIST_LINKS_HISTTIMES = [int, float]
