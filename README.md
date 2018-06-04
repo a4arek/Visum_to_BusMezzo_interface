@@ -21,8 +21,10 @@ Dr Oded Cats - http://www.citg.tudelft.nl/en/about-faculty/departments/transport
 ##               usage:                ##
 ########################################
 
-run the script in Visum (drag & drop).
-BusMezzo files (.dat) will be created in the Version Project Directory of Visum (%MYDOCUMENTS% by default)
+* as a script:
+run the [main.py](https://github.com/a4arek/Visum_to_BusMezzo_interface/blob/master/main.py) script in Visum (drag & drop).
+BusMezzo files (.dat) will be created in the folder with you
+* standalone: run main.py from python 
 
 
 ##############################################################
@@ -77,3 +79,15 @@ BusMezzo files (.dat) will be created in the Version Project Directory of Visum 
 - Make sure that demand matrix is assigned to the PuT DEMAND SEGMENT (in the OD DEMANDDATA settings).
 - Furthermore, check that StartTime and EndTime are defined in the SEGMENT TIME SERIES (these should be consistent
   with the PuT assignment simulation time!).
+  
+# Tests
+  
+ * The reference network is [Central Part of Kraków](https://github.com/a4arek/Visum_to_BusMezzo_interface/blob/master/test/Krakow_test_I_obw/KRK_test1.ver) saved in .ver file (Visum) and editable _.net_ and _.dmd_ files. 
+ * The output files are _.dat_ files in folder https://github.com/a4arek/Visum_to_BusMezzo_interface/tree/master/test/Krakow_test_I_obw copied into [ref](https://github.com/a4arek/Visum_to_BusMezzo_interface/tree/master/test/Krakow_test_I_obw/ref) folder.
+ * After changes run [test.py](https://github.com/a4arek/Visum_to_BusMezzo_interface/blob/master/test.py) to assert if files are unchanged. 
+ 
+ # Contributing
+ 
+ All contribution welcomed. 
+ Improvements shall be done in personal branches, after running tests (test.py) and documenting changes in pull request we will merge it into master.
+ Changes may refer both to code itself as well as test networks.
