@@ -47,9 +47,13 @@ def make_Net(Visum):
 
     file = open(MAIN_PATH+'\\net.dat', 'w')
     addTable(file,"servers",[[0,0,0,0,0]], [int, int, int, int, int])
-    addTable(file,"nodes",Visum.Net.Nodes.GetMultipleAttributes(ATTR_LIST_NODES), TYPE_LIST_NODES)
-    addTable(file,"sdfuncs",Visum.Net.LinkTypes.GetMultipleAttributes(ATTR_LIST_LINKTYPES, True), TYPE_LIST_LINKTYPES)
-    addTable(file,"links",Visum.Net.Links.GetMultipleAttributes(ATTR_LIST_LINKS, True), TYPE_LIST_LINKS)
+    node_table = Visum.Net.Nodes.GetMultipleAttributes(ATTR_LIST_NODES)
+    for node in node_table:
+        if int(node[1]) == 2:
+            node.append(0)
+    addTable(file, "nodes", node_table, TYPE_LIST_NODES)
+    addTable(file,"sdfuncs", Visum.Net.LinkTypes.GetMultipleAttributes(ATTR_LIST_LINKTYPES, True), TYPE_LIST_LINKTYPES)
+    addTable(file,"links", Visum.Net.Links.GetMultipleAttributes(ATTR_LIST_LINKS, True), TYPE_LIST_LINKS)
     file.close()
 
 def make_Turnings(Visum):
