@@ -80,13 +80,13 @@ BusMezzo files (.dat) will be created in the folder with you
 - Furthermore, check that StartTime and EndTime are defined in the SEGMENT TIME SERIES (these should be consistent
   with the PuT assignment simulation time!).
   
-  # Tests
+# Tests
   
  * The reference network is [Central Part of Kraków](https://github.com/a4arek/Visum_to_BusMezzo_interface/blob/master/test/Krakow_test_I_obw/KRK_test1.ver) saved in .ver file (Visum) and editable _.net_ and _.dmd_ files. 
  * The output files are _.dat_ files in folder https://github.com/a4arek/Visum_to_BusMezzo_interface/tree/master/test/Krakow_test_I_obw copied into [ref](https://github.com/a4arek/Visum_to_BusMezzo_interface/tree/master/test/Krakow_test_I_obw/ref) folder.
  * After changes run [test.py](https://github.com/a4arek/Visum_to_BusMezzo_interface/blob/master/test.py) to assert if files are unchanged. 
  
- # Cuntributing
+ # Contributing
  
  All contribution welcomed. 
  Improvements shall be done in personal branches, after running tests (test.py) and documenting changes in pull request we will merge it into master.
