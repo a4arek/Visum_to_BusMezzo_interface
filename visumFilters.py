@@ -13,8 +13,9 @@ def filter_Links(Visum):
     while Iterator.Valid:
 
         check_link = Iterator.Item.AttValue("BM_FILTER_Visum_Links")
+        check_link_zone = Iterator.Item.AttValue("BM_FILTER_Visum_Zone_Centroid_Links")
 
-        if check_link == 1.0:
+        if (check_link == 1.0) or (check_link_zone == 1.0):
             Iterator.Item.Active = True
         else:
             Iterator.Item.Active = False

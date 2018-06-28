@@ -246,6 +246,6 @@ if __name__ == "__main__":
         Visum = win32com.client.Dispatch('Visum.Visum')
         Visum.LoadVersion(MAIN_PATH+"KRK_test1.ver")
         Visum.SetPath(2, MAIN_PATH)
-    Visum.Graphic.StopDrawing = True
+    # Visum.Graphic.StopDrawing = True
     main(Visum)
-    Visum.Graphic.StopDrawing = False
+    # Visum.Graphic.StopDrawing = False
