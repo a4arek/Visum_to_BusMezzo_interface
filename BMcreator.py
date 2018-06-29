@@ -441,15 +441,16 @@ def make_Parameters(Visum):
     file.write("	   start_pass_generation= 0	" + LINE_NEW)
     file.write("	   stop_pass_generation= 3600	" + LINE_NEW)
     file.write("	   od_pairs_for_generation= 0	" + LINE_NEW)
+    file.write("	   gate_generation_time_diff= 0	" + LINE_NEW)
     file.write("	#transit_control_parameters	" + LINE_NEW)
     file.write("	   riding_time_weight= 1.0	" + LINE_NEW)
     file.write("	   dwell_time_weight= 1.0	" + LINE_NEW)
     file.write("	   waiting_time_weight= 2.0	" + LINE_NEW)
     file.write("	   holding_time_weight= 2.5	" + LINE_NEW)
+    file.write("	   compliance_rate= 1.0	" + LINE_NEW)
+    file.write("	   transfer_sync= 0	" + LINE_NEW)
     file.write("	#day2day_assignment	" + LINE_NEW)
     file.write("	   default_alpha_RTI= 0.7	" + LINE_NEW)
-    file.write("	   visim_step= 0.10	" + LINE_NEW)
-    file.write("	   sim_speed_factor= 1.89	" + LINE_NEW)
 
     file.close()
 

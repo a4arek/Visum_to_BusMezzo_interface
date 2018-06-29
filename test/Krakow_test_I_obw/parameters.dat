@@ -70,12 +70,13 @@
 	   start_pass_generation= 0	
 	   stop_pass_generation= 3600	
 	   od_pairs_for_generation= 0	
+	   gate_generation_time_diff= 0	
 	#transit_control_parameters	
 	   riding_time_weight= 1.0	
 	   dwell_time_weight= 1.0	
 	   waiting_time_weight= 2.0	
 	   holding_time_weight= 2.5	
+	   compliance_rate= 1.0	
+	   transfer_sync= 0	
 	#day2day_assignment	
 	   default_alpha_RTI= 0.7	
-	   visim_step= 0.10	
-	   sim_speed_factor= 1.89	
