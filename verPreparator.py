@@ -24,6 +24,8 @@ def modify_network_Zones(Visum):
     addUDAs(obj, "BM_ZoneID", [1,0,0,0,0,0])
     obj = Visum.Net.Links
     addUDAs(obj,"BM_FILTER_Visum_Zone_Centroid_Links",[9])
+    obj = Visum.Net.StopPoints
+    addUDAs(obj,"BM_FILTER_Visum_Zone_Centroid_StopPoints",[9])
 
     # 2. find Visum objects' offsets
     nodes_offset = numbering_offset(Visum.Lists.CreateNodeList)
@@ -62,9 +64,11 @@ def modify_network_Zones(Visum):
     # 5. set BM_ZoneID
         zone.SetAttValue("BM_ZoneID", curr_stoparea_no)
 
-    # 6. mark valid Zone centroid Links (i.e. for further filtering)
+    # 6. mark valid Zone centroid objects (i.e. for further filtering)
         mark_link = Visum.Net.Links.ItemByKey(curr_node_no -1, curr_node_no)
         mark_link.SetAttValue("BM_FILTER_Visum_Zone_Centroid_Links", 1.0)
+        mark_stoppoint = Visum.Net.StopPoints.ItemByKey(curr_stoppoint_no)
+        mark_stoppoint.SetAttValue("BM_FILTER_Visum_Zone_Centroid_StopPoints", 1.0)
 
     # repeat for all Zones
         curr_node_no += 1
@@ -122,138 +126,142 @@ def modify_network_Connectors(Visum):
         Iterator.Next()
 
 # modify_StopPoints - NOT USED so far
-def modify_network_StopPoints(Visum):
-    # add StopPoint Links (split) and set RelativePosition
-
-    # add UDA (if not added yet)
-    try:
-        Visum.Net.StopPoints.AddUserDefinedAttribute("BM_StopPoint_Modified","BM_StopPoint_Modified","BM_StopPoint_Modified",9)
-    except:
-        pass
-
-    Iterator = Visum.Net.StopPoints.Iterator
-
-    while Iterator.Valid:
-        sp = Iterator.Item
-        sp_no = sp.AttValue("No")
-
-        # FIRST - check if the StopPoint has already been modified
-        if sp.AttValue("BM_StopPoint_Modified") == 1:
-            # IF SO - SKIP the whole loop and proceed to the next StopPoint
-            pass
-
-        else:
-            # IF NOT - MODIFY the StopPoint position
-            # collect necessary input (StopPoint / Link / Node) parameters:
-            sp_from_node = sp.AttValue("FromNodeNo")
-            sp_link_no = sp.AttValue("LinkNo")
-            try:
-                link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_from_node)
-            except:
-                sys.exit("Visum Stop Point on node not supported - Import failed")
-
-            link_length = link.AttValue("Length") * 1000        # in [m]
-
-            # FIRST CHECK - minimum link length
-            if link_length <= 26.0:
-                pass # RK: what then?
-
-            else:
-                sp_to_node = link.AttValue("ToNodeNo")
-                sp_rel_position = sp.AttValue("RelPos")
-
-                sp_dist_from_node = link_length * sp_rel_position  # distance [m] between StopPoint <-> start node
-                sp_dist_to_node = link_length - sp_dist_from_node  # distance [m] between StopPoint <-> end node
-
-                # X, Y COORDINATES - data required for Link splitting procedure
-                # X,Y COORDINATES - StopPoint
-                sp_x = sp.AttValue("XCoord")
-                sp_y = sp.AttValue("YCoord")
-                ref_stoppoint = [sp_x, sp_y]
-                # X,Y COORDINATES - FromNode
-                from_node_x = Visum.Net.Nodes.ItemByKey(sp_from_node).AttValue("XCoord")
-                from_node_y = Visum.Net.Nodes.ItemByKey(sp_from_node).AttValue("YCoord")
-                ref_fromnode = [from_node_x, from_node_y]
-                # X,Y COORDINATES - ToNode
-                to_node_x = Visum.Net.Nodes.ItemByKey(sp_to_node).AttValue("XCoord")
-                to_node_y = Visum.Net.Nodes.ItemByKey(sp_to_node).AttValue("YCoord")
-                ref_tonode = [to_node_x, to_node_y]
-
-                if sp_dist_from_node < 13.0:
-                # case 1 - adjust StopPoint and split Link 26 [m] from the start node
-
-                    adjust_rel_pos = 26.0/2.0 / link_length
-                    try:
-                        sp.SetAttValue("RelPos", adjust_rel_pos)
-                    except:
-                        print "Adjusting StopPoint position failed: ", sp.AttValue("No")
-                        pass
-                    split_node = get_splitting_coords(ref_stoppoint, ref_fromnode, 1.0)
-
-                    try:
-                        link.SplitAtPosition(split_node[0], split_node[1])
-                    except:
-                        print "Link splitting failed", link.AttValue("No")
-                        pass
-
-                elif sp_dist_to_node < 13.0:
-                # case 2 - adjust StopPoint and split Link 26 [m] from the end node
-
-                    adjust_rel_pos = (link_length - 26.0)/2.0 / link_length
-                    try:
-                        sp.SetAttValue("RelPos", adjust_rel_pos)
-                        print "nie udalo sie przesunac StopPoint no", sp.AttValue("No")
-                    except:
-                        pass
-                    split_node = get_splitting_coords(ref_stoppoint, ref_tonode, 1.0)
-
-                    try:
-                        link.SplitAtPosition(split_node[0], split_node[1])
-                    except:
-                        print "nie udalo sie podzielic Link no", link.AttValue("No")
-                        pass
-
-                else:
-                # case 3 - split Link only within the StopPoint position
-
-                    # X, Y COORDINATES - Link intermediate (polygon) points
-                    link_polygon_course = link.AttValue("WKTPoly")
-                    link_spline_coords = get_spline_coords_of_Link(link_polygon_course)
-                    ref_int_node = find_nearest_intermediate_ref_Link_point(ref_stoppoint, link_spline_coords)
-                    dist_factor = find_dist_factor(ref_stoppoint, ref_int_node, 26.0)
-
-                    split_node_no1 = get_splitting_coords(ref_stoppoint, ref_int_node, dist_factor)
-                    try:
-                        link.SplitAtPosition(split_node_no1[0], split_node_no1[1])
-                    except:
-                        print "nie udalo sie przesunac StopPoint no", sp.AttValue("No")
-                        pass
-
-                    ref_opposite_int_node = find_opposite_ref_Link_point(ref_stoppoint, ref_int_node)
-                    split_node_no2 = get_splitting_coords(ref_stoppoint, ref_opposite_int_node, dist_factor)
-                    try:
-                        link.SplitAtPosition(split_node_no2[0], split_node_no2[1])
-                    except:
-                        print "nie udalo sie podzielic Link no", link.AttValue("No")
-                        pass
-                try:
-                    sp.SetAttValue("RelPos", UDA_StopPoints_DefaultRelPos)
-                except:
-                    pass
-                # FINAL PART - mark that the StopPoint was modified
-                sp.SetAttValue("BM_StopPoint_Modified", 1)
-
-        # proceed to the next StopPoint
-        Iterator.Next()
-
-    ## !! TO BE FIXED - PuT Assignment has to be run again
-    Visum.Procedures.Execute()
+# def modify_network_StopPoints(Visum):
 
 
 
+    ### OLD VERSION - disabled 29-06-2018:
+    ## add StopPoint Links (split) and set RelativePosition
+
+    ## add UDA (if not added yet)
+    #try:
+    #    Visum.Net.StopPoints.AddUserDefinedAttribute("BM_StopPoint_Modified","BM_StopPoint_Modified","BM_StopPoint_Modified",9)
+    #except:
+    #    pass
+
+    #Iterator = Visum.Net.StopPoints.Iterator
+
+    #while Iterator.Valid:
+    #    sp = Iterator.Item
+    #    sp_no = sp.AttValue("No")
+
+    #    # FIRST - check if the StopPoint has already been modified
+    #    if sp.AttValue("BM_StopPoint_Modified") == 1:
+    #        # IF SO - SKIP the whole loop and proceed to the next StopPoint
+    #        pass
+
+    #    else:
+    #        # IF NOT - MODIFY the StopPoint position
+    #        # collect necessary input (StopPoint / Link / Node) parameters:
+    #        sp_from_node = sp.AttValue("FromNodeNo")
+    #        sp_link_no = sp.AttValue("LinkNo")
+    #        try:
+    #            link = Visum.Net.Links.ItemByLinkNrFromNode(sp_link_no, sp_from_node)
+    #        except:
+    #            sys.exit("Visum Stop Point on node not supported - Import failed")
+
+    #        link_length = link.AttValue("Length") * 1000        # in [m]
+
+    #        # FIRST CHECK - minimum link length
+    #        if link_length <= 26.0:
+    #            pass # RK: what then?
+
+    #        else:
+    #            sp_to_node = link.AttValue("ToNodeNo")
+    #            sp_rel_position = sp.AttValue("RelPos")
+
+    #            sp_dist_from_node = link_length * sp_rel_position  # distance [m] between StopPoint <-> start node
+    #            sp_dist_to_node = link_length - sp_dist_from_node  # distance [m] between StopPoint <-> end node
+
+    #            # X, Y COORDINATES - data required for Link splitting procedure
+    #            # X,Y COORDINATES - StopPoint
+    #            sp_x = sp.AttValue("XCoord")
+    #            sp_y = sp.AttValue("YCoord")
+    #            ref_stoppoint = [sp_x, sp_y]
+    #            # X,Y COORDINATES - FromNode
+    #            from_node_x = Visum.Net.Nodes.ItemByKey(sp_from_node).AttValue("XCoord")
+    #            from_node_y = Visum.Net.Nodes.ItemByKey(sp_from_node).AttValue("YCoord")
+    #            ref_fromnode = [from_node_x, from_node_y]
+    #            # X,Y COORDINATES - ToNode
+    #            to_node_x = Visum.Net.Nodes.ItemByKey(sp_to_node).AttValue("XCoord")
+    #            to_node_y = Visum.Net.Nodes.ItemByKey(sp_to_node).AttValue("YCoord")
+    #            ref_tonode = [to_node_x, to_node_y]
+
+    #            if sp_dist_from_node < 13.0:
+    #            # case 1 - adjust StopPoint and split Link 26 [m] from the start node
+
+    #                adjust_rel_pos = 26.0/2.0 / link_length
+    #                try:
+    #                    sp.SetAttValue("RelPos", adjust_rel_pos)
+    #                except:
+    #                    print "Adjusting StopPoint position failed: ", sp.AttValue("No")
+    #                    pass
+    #                split_node = get_splitting_coords(ref_stoppoint, ref_fromnode, 1.0)
+
+    #                try:
+    #                    link.SplitAtPosition(split_node[0], split_node[1])
+    #                except:
+    #                    print "Link splitting failed", link.AttValue("No")
+    #                    pass
+
+    #            elif sp_dist_to_node < 13.0:
+    #            # case 2 - adjust StopPoint and split Link 26 [m] from the end node
+
+    #                adjust_rel_pos = (link_length - 26.0)/2.0 / link_length
+    #                try:
+    #                    sp.SetAttValue("RelPos", adjust_rel_pos)
+    #                    print "nie udalo sie przesunac StopPoint no", sp.AttValue("No")
+    #                except:
+    #                    pass
+    #                split_node = get_splitting_coords(ref_stoppoint, ref_tonode, 1.0)
+
+    #                try:
+    #                    link.SplitAtPosition(split_node[0], split_node[1])
+    #                except:
+    #                    print "nie udalo sie podzielic Link no", link.AttValue("No")
+    #                    pass
+
+    #            else:
+    #            # case 3 - split Link only within the StopPoint position
+
+    #                # X, Y COORDINATES - Link intermediate (polygon) points
+    #                link_polygon_course = link.AttValue("WKTPoly")
+    #                link_spline_coords = get_spline_coords_of_Link(link_polygon_course)
+    #                ref_int_node = find_nearest_intermediate_ref_Link_point(ref_stoppoint, link_spline_coords)
+    #                dist_factor = find_dist_factor(ref_stoppoint, ref_int_node, 26.0)
+
+    #                split_node_no1 = get_splitting_coords(ref_stoppoint, ref_int_node, dist_factor)
+    #                try:
+    #                    link.SplitAtPosition(split_node_no1[0], split_node_no1[1])
+    #                except:
+    #                    print "nie udalo sie przesunac StopPoint no", sp.AttValue("No")
+    #                    pass
+
+    #                ref_opposite_int_node = find_opposite_ref_Link_point(ref_stoppoint, ref_int_node)
+    #                split_node_no2 = get_splitting_coords(ref_stoppoint, ref_opposite_int_node, dist_factor)
+    #                try:
+    #                    link.SplitAtPosition(split_node_no2[0], split_node_no2[1])
+    #                except:
+    #                    print "nie udalo sie podzielic Link no", link.AttValue("No")
+    #                    pass
+    #            try:
+    #                sp.SetAttValue("RelPos", UDA_StopPoints_DefaultRelPos)
+    #            except:
+    #                pass
+    #            # FINAL PART - mark that the StopPoint was modified
+    #            sp.SetAttValue("BM_StopPoint_Modified", 1)
+
+    #    # proceed to the next StopPoint
+    #    Iterator.Next()
+
+    ### !! TO BE FIXED - PuT Assignment has to be run again
+    #Visum.Procedures.Execute()
 
 
 
+
+
+    ##### MUCH OLDER VERSION - disabled March 2018
 
     ## FIRST - check if the Visum network has already been modified
     # relpos_min_limit = 0.49
@@ -403,9 +411,13 @@ def adjust_Links(Visum):
     Visum.Net.Links.SetMultiAttValues("BM_LinkID", link_ids)
 
 def adjust_Connectors(Visum):
-
     # (connectors) - assign Orig and Dest points or lists (BM_Zone_ID, StopAreaNo)
-    # eventually - these will be mapped as BM {stop_distances}
+    # these will be then mapped as BM {stop_distances}
+
+    # first - temporarily filter out StopAreas with active LineRoutes
+    Visum.Net.StopAreas.FilteredBy('[OnActiveLineRoute]=0').SetPassive()
+
+    # now evaluate the active [Zone <=> StopArea] Connectors:
     Iterator = Visum.Net.Connectors.Iterator
 
     while Iterator.Valid:
@@ -413,13 +425,16 @@ def adjust_Connectors(Visum):
 
         if conn.AttValue("Direction") == 1.0:   # origin connector (Zone => AccessNode)
             conn.SetAttValue("BM_OrigPointData", conn.AttValue("Zone\BM_ZoneID"))
-            conn.SetAttValue("BM_DestPointData", conn.AttValue("Node\Distinct:StopAreas\No"))
+            conn.SetAttValue("BM_DestPointData", conn.AttValue("Node\DistinctActive:StopAreas\No"))
         else:                                   # destination connector (AccessNode => Zone)
             pass
             #conn.SetAttValue("BM_OrigPointData", conn.AttValue("Node\Distinct:StopAreas\No"))
             #conn.SetAttValue("BM_DestPointData", conn.AttValue("Zone\BM_ZoneID"))
 
         Iterator.Next()
+
+    # initialize the StopAreas filter
+    Visum.Net.StopAreas.SetActive()
 
 def adjust_Turns(Visum):
 
@@ -668,6 +683,11 @@ def adjust_StopPoints(Visum):
         sp_relpos = sp.AttValue("RelPos")
         sp_position = link_length * sp_relpos
 
+
+        if sp.AttValue("Name") == "":
+            sp_name = "_".join(['stop',str(sp.AttValue("StopAreaNo"))])
+            sp.SetAttValue(("Name"),sp_name)
+
         sp.SetAttValue("BM_StopLinkID", sp_link_id)
         sp.SetAttValue("BM_Position", sp_position)
 
@@ -813,6 +833,7 @@ def addUDAs_StopPoints(Visum):
     addUDAs(obj,"BM_StopType",[2,1,0,0,0,UDA_StopPoints_StopType])
     addUDAs(obj,"BM_CanOvertake",[2,1,0,0,0,UDA_StopPoints_CanOvertake])
     addUDAs(obj,"BM_RTI_Level",[2,1,0,0,0,UDA_StopPoints_RTI_Level])
+    addUDAs(obj,"BM_GateFlag",[2,1,0,0,0,UDA_StopPoints_GateFlag])
 
 if __name__ == "__main__":
     import sys, os, win32com.client

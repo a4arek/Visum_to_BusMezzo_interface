@@ -31,8 +31,9 @@ def filter_Turns(Visum):
 
         tr = Iterator.Item
         no_of_passing_line_routes = tr.AttValue("Count:LineRouteItems")
+        check_turn = (no_of_passing_line_routes > 0)
 
-        if no_of_passing_line_routes > 0:
+        if check_turn == 1.0:
             Iterator.Item.Active = True
         else:
             Iterator.Item.Active = False
@@ -65,6 +66,45 @@ def filter_LinkTypes(Visum):
 
         Iterator.Next()
 
+def filter_StopPoints_StopAreas(Visum):
+    # filter only StopPoints (=> and StopAreas) with active LineRoutes
+
+    Iterator = Visum.Net.StopPoints.Iterator
+
+    while Iterator.Valid:
+
+        sp = Iterator.Item
+        sa = sp.StopArea
+        check_stoppoint = (sp.AttValue("CountActive:LineRouteItems") > 0)
+        check_stoppoint_zone = sp.AttValue("BM_FILTER_Visum_Zone_Centroid_StopPoints")
+
+        if (check_stoppoint == 1.0) or (check_stoppoint_zone == 1.0):
+            sp.Active = True
+            sa.Active = True
+        else:
+            sp.Active = False
+            sa.Active = False
+
+        Iterator.Next()
+
+def filter_Connectors(Visum):
+    # filter only those Connectors between Zones and active StopAreas (AccessNodes)
+    # this filter should be run at the end, i.e. once all other objects have been set (in)active
+
+    Iterator = Visum.Net.Connectors.Iterator
+
+    while Iterator.Valid:
+
+        conn = Iterator.Item
+        no_of_active_node_stops = conn.AttValue("Node\CountActive:StopAreas")
+        check_connector = (no_of_active_node_stops > 0)
+
+        if check_connector == 1.0:
+            conn.Active = True
+        else:
+            conn.Active = False
+
+        Iterator.Next()
 
 if __name__ == "__main__":
     pass

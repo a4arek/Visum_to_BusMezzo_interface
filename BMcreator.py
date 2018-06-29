@@ -132,7 +132,7 @@ def make_Transit_Network(Visum):
     MAIN_PATH = Visum.GetPath(2)
 
     file = open(MAIN_PATH + '\\transit_network.dat', 'w')
-    addTable(file, "stops",Visum.Net.StopPoints.GetMultipleAttributes(ATTR_LIST_STOPPOINTS), TYPE_LIST_STOPPOINTS)
+    addTable(file, "stops",Visum.Net.StopPoints.GetMultipleAttributes(ATTR_LIST_STOPPOINTS, True), TYPE_LIST_STOPPOINTS)
 
     # STOPS_DISTANCES{...} - list export and processing steps:
 
@@ -142,6 +142,7 @@ def make_Transit_Network(Visum):
     walk_list.AddColumn("FromStopAreaNo")
     walk_list.AddColumn("ToStopAreaNo")
     walk_list.AddColumn("Time(W)")
+    walk_list.SetObjects(True)
     # walk_list.AddColumn("ToStopAreaNo",GroupOrAggrFunction=10)
     # walk_list.AddColumn("Time(W)",GroupOrAggrFunction=10)
     in_list = np.array(walk_list.SaveToArray())
@@ -176,6 +177,7 @@ def make_Transit_Network(Visum):
     conn_list.AddColumn("BM_OrigPointData")
     conn_list.AddColumn("BM_DestPointData")
     conn_list.AddColumn("T0_TSys(W)")
+    conn_list.SetObjects(True)
     in_conn_list = [[str(x) for x in row] for row in np.array(conn_list.SaveToArray())]
     out_conn_list = []
 
@@ -224,6 +226,9 @@ def make_Transit_Network(Visum):
     file.write("stops_distances: " + stops_dist_length + LINE_NEW)
     file.write("format: 1" + LINE_NEW)
     addTable(file, "", ATTR_LIST_STOPDISTANCES, TYPE_LIST_STOPDISTANCES)
+
+    ### 5. STOPS_WALKING_TIMES - to be updated soon
+    file.write("stops_walking_times: 0" + LINE_NEW)
 
     # LINES / TRIPS data:
 

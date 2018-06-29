@@ -162,6 +162,10 @@ def filter_Visum_Net(Visum):
     logPrinter("filter_Turns(Visum)", Visum=Visum)
     # filter_LinkTypes(Visum)
     # logPrinter("filter_LinkTypes(Visum)", Visum=Visum)
+    filter_StopPoints_StopAreas(Visum)
+    logPrinter("filter_StopPoints_StopAreas(Visum)", Visum=Visum)
+    filter_Connectors(Visum)
+    logPrinter("filter_Connectors(Visum)", Visum=Visum)
 
 ### 5.
 def make_BM(Visum):
