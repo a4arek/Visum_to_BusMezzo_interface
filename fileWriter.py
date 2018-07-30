@@ -76,6 +76,28 @@ def str_int(in_float):
     out_str_int = '{0:g}'.format(float(in_float))
     return(out_str_int)
 
+def convert_ConcatenatedMultipleAttributes(input_tuple):
+    # input - 2D tuple list with Visum attributes
+    # !! (important! - does not contain empty fields)
+    # remove duplicate rows - if 1st column contains duplicate entries
+    # output - 2D array with integers
+
+    input_array = [list(row) for row in input_tuple]
+    in_array_remove_duplicates = []
+    row_prev = [None, None]
+
+    for row in input_array:
+        if row[0] == row_prev[0]:
+            pass
+        else:
+            in_array_remove_duplicates.append([int(k) for k in row])
+            row_prev = row
+
+    output_2d_array = in_array_remove_duplicates
+
+    return output_2d_array
+
+
 def convert_ConcatenatedMultiAttValues(input_list):
     # remove NoneTypes
     # remove duplicates (i.e. elements appearing twice IN A ROW)

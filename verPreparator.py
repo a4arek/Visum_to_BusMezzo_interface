@@ -4,7 +4,7 @@ from math import pow, ceil, log10
 import sys
 
 from fileWriter import calc_BM_list_of_elements, \
-    str_int, convert_ConcatenatedMultiAttValues, numbering_offset, LIST_BEGIN, LIST_END
+    str_int, convert_ConcatenatedMultiAttValues, convert_ConcatenatedMultipleAttributes, numbering_offset, LIST_BEGIN, LIST_END
 
 from geometrical import get_spline_coords_of_Link, get_splitting_coords, find_nearest_intermediate_ref_Link_point, \
     find_opposite_ref_Link_point, find_dist_factor
@@ -50,25 +50,35 @@ def modify_network_Zones(Visum):
         zone = Iterator.Item
         zone_x = zone.AttValue("XCoord")
         zone_y = zone.AttValue("YCoord")
+        zone_no = str(int(zone.AttValue("No")))
+        try:
+            district_name = zone.AttValue("Name")
+        except:
+            district_name = ""
 
         Visum.Net.AddNode(curr_node_no, zone_x-20, zone_y)
         curr_node_no += 1
         Visum.Net.AddNode(curr_node_no, zone_x+20, zone_y)
-        Visum.Net.AddLink(curr_link_no, curr_node_no - 1, curr_node_no)
+        zone_addlink = Visum.Net.AddLink(curr_link_no, curr_node_no - 1, curr_node_no)
 
     # 4. add fictitious Stop/StopArea/StopPoint at each Zone centroid
-        Visum.Net.AddStop(curr_stop_no, zone_x, zone_y)
-        Visum.Net.AddStopArea(curr_stoparea_no, curr_stop_no, curr_node_no, zone_x, zone_y)
-        Visum.Net.AddStopPointOnLink(curr_stoppoint_no, curr_stoparea_no, curr_node_no - 1, curr_node_no, True)
+        zone_addstop = Visum.Net.AddStop(curr_stop_no, zone_x, zone_y)
+        zone_addstoparea = Visum.Net.AddStopArea(curr_stoparea_no, curr_stop_no, curr_node_no, zone_x, zone_y)
+        zone_addstoppoint = Visum.Net.AddStopPointOnLink(curr_stoppoint_no, curr_stoparea_no, curr_node_no - 1, curr_node_no, True)
 
-    # 5. set BM_ZoneID
+    # 5. set fictitious StopPoint/StopArea name(s)
+        zone_stop_name = '_'.join([str('zone'), zone_no, district_name])
+        zone_addstoppoint.SetAttValue("Name", zone_stop_name)
+        zone_addstoparea.SetAttValue("Name", zone_stop_name)
+
+    # 6. set BM_ZoneID
         zone.SetAttValue("BM_ZoneID", curr_stoparea_no)
 
-    # 6. mark valid Zone centroid objects (i.e. for further filtering)
-        mark_link = Visum.Net.Links.ItemByKey(curr_node_no -1, curr_node_no)
-        mark_link.SetAttValue("BM_FILTER_Visum_Zone_Centroid_Links", 1.0)
-        mark_stoppoint = Visum.Net.StopPoints.ItemByKey(curr_stoppoint_no)
-        mark_stoppoint.SetAttValue("BM_FILTER_Visum_Zone_Centroid_StopPoints", 1.0)
+    # 7. mark valid Zone centroid objects (i.e. for further filtering)
+        # mark_link = Visum.Net.Links.ItemByKey(curr_node_no -1, curr_node_no)
+        zone_addlink.SetAttValue("BM_FILTER_Visum_Zone_Centroid_Links", 1.0)
+        # mark_stoppoint = Visum.Net.StopPoints.ItemByKey(curr_stoppoint_no)
+        zone_addstoppoint.SetAttValue("BM_FILTER_Visum_Zone_Centroid_StopPoints", 1.0)
 
     # repeat for all Zones
         curr_node_no += 1
@@ -509,10 +519,14 @@ def adjust_LineRoutes(Visum):
         end_stop = stop_list[len(stop_list)-1][1]
 
         # convert Visum attribute lists into "BusMezzo-tailored" strings
+
+        # input - original lists
         conv_stop_list = convert_ConcatenatedMultiAttValues(stop_list)
         conv_line_course = convert_ConcatenatedMultiAttValues(line_course)
-        no_stops = len(conv_stop_list)
-        no_links = len(conv_line_course)
+        # no. of list elements (length)
+        no_of_stops = len(conv_stop_list)
+        no_of_links = len(conv_line_course)
+        # final output - saved as strings
         add_stop_list = calc_BM_list_of_elements(conv_stop_list)
         add_line_course = calc_BM_list_of_elements(conv_line_course)
 
@@ -526,11 +540,13 @@ def adjust_LineRoutes(Visum):
 
         Iterator.Item.SetAttValue("BM_Start_Node_No",start_node)
         Iterator.Item.SetAttValue("BM_End_Node_No",end_node)
-        Iterator.Item.SetAttValue("BM_No_Of_Links",no_links)
+        Iterator.Item.SetAttValue("BM_No_of_Links",no_of_links)
         Iterator.Item.SetAttValue("BM_List_Links",add_line_course)
 
         Iterator.Item.SetAttValue("BM_Start_Stop_No",start_stop)
         Iterator.Item.SetAttValue("BM_End_Stop_No",end_stop)
+
+        Iterator.Item.SetAttValue("BM_No_of_Stops", no_of_stops)
         Iterator.Item.SetAttValue("BM_List_Stops", add_stop_list)
 
         Iterator.Item.SetAttValue("BM_VehType",veh_type)
@@ -549,10 +565,16 @@ def adjust_TimeProfiles(Visum):
         add_tp_list = str()
         add_dep_list = str()
 
-        tp_list = [str_int(60*row[1]) for row in tp.TimeProfileItems.GetMultiAttValues("PreRunTime")]
+
+        # UPDATE 30-07-2018 - remove TP segments within the same StopAreas
+        # TimeProfile PreRunTimes rounded to the nearest 60 [secs]
+        in_tp_profile = tp.TimeProfileItems.GetMultipleAttributes(("LineRouteItem\StopPoint\StopArea\No","PreRunTime"))
+        tp_profile = convert_ConcatenatedMultipleAttributes(in_tp_profile)
+        tp_list = [60 * round(tp_row[1]/60.0) for tp_row in tp_profile]
+        tp_list = [str_int(max(row, 60)) if (j > 0) else str_int(row) for j, row in enumerate(tp_list)]
+
         no_of_tp_segments = len(tp_list)
-        add_tp_list = calc_BM_list_of_elements(tp_list)
-        # add_tp_list = space.join(str(int(r)) for r in tp_list)
+        add_tp_list = calc_BM_list_of_elements(tp_list)             # converted to string
 
         # first dispatch time of each line
         sim_start_time_offset = Visum.Net.TimeSeriesCont.ItemByKey(1).AttValue("StartTime")
@@ -811,6 +833,7 @@ def addUDAs_LineRoutes(Visum):
     addUDAs(obj,"BM_List_Links",[62])
     addUDAs(obj,"BM_No_of_Links",[1,0,0,0,0,0])
     addUDAs(obj,"BM_List_Stops",[62])
+    addUDAs(obj,"BM_No_of_Stops",[1,0,0,0,0,0])
     addUDAs(obj,"BM_Start_Node_No",[1,0,0,0,0,0])
     addUDAs(obj,"BM_End_Node_No",[1,0,0,0,0,0])
     addUDAs(obj,"BM_Start_Stop_No",[1,0,0,0,0,0])

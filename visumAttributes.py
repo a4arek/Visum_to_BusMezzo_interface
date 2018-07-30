@@ -53,7 +53,7 @@ ATTR_LIST_STOPAREAS = ["No", "Name", "BM_StopLinkID", "BM_Position", "BM_Length"
                        "BM_DefDwellTime", "BM_RTI_Level", "BM_GateFlag"]
 ATTR_LIST_LINEROUTES = ["BM_RouteID", "BM_OppositeRouteID", "BM_RouteName", "BM_Start_Node_No", "BM_End_Node_No",
                         "BM_RouteID", "BM_VehType", "BM_HoldingStrategy", "BM_HoldingRatio", "BM_InitialOccupPerStop",
-                        "BM_InitialOccupNumStops", "NumStopPoints", "BM_List_Stops", "NumStopPoints", "BM_List_Stops"]
+                        "BM_InitialOccupNumStops", "BM_No_of_Stops", "BM_List_Stops", "BM_No_of_Stops", "BM_List_Stops"]
 ATTR_LIST_TIMEPROFILES_format3 = ["BM_TimeProfileID", "BM_No_of_RunTimes", "BM_List_RunTimes", "BM_First_Dispatch_Time",
                                   "BM_Headway", "Count:VehJourneys"]
 ATTR_LIST_TIMEPROFILES_format2 = ["BM_TimeProfileID", "BM_No_of_RunTimes", "BM_List_RunTimes", "Count:VehJourneys",
