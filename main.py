@@ -131,6 +131,8 @@ def add_UDAs(Visum):
     logPrinter("addUDAs_VehicleUnits(Visum)", Visum=Visum)
     addUDAs_StopPoints(Visum)
     logPrinter("addUDAs_StopPoints(Visum)", Visum=Visum)
+    addUDAs_StopAreas(Visum)
+    logPrinter("addUDAs_StopAreas(Visum)", Visum=Visum)
 
 ### 3.
 def adjust_UDAs(Visum):
@@ -152,6 +154,8 @@ def adjust_UDAs(Visum):
     logPrinter("adjust_VehicleJourneys(Visum)", Visum=Visum)
     adjust_StopPoints(Visum)
     logPrinter("adjust_StopPoints(Visum)", Visum=Visum)
+    adjust_StopAreas(Visum)
+    logPrinter("adjust_StopAreas(Visum)", Visum=Visum)
 
 ### 4.
 def filter_Visum_Net(Visum):

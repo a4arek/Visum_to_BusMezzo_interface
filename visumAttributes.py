@@ -13,12 +13,18 @@ UDA_Turns_LookBack = 40.0           # default look-back distance [m]
 UDA_VehicleUnits_VehLength = 6.0   # default PuT vehicle length [m]
 UDA_VehicleUnits_DTFunc = 1         # default dwell-time function [-]
 UDA_VehicleJourneys_NumTrips = 1    # default no. of trips [-] (simplified driving roster - quick-fix for now)
-UDA_StopPoints_StopLength = 15.0    # default stop length [m]
-UDA_StopPoints_StopType = 0         # default stop type [-]
-UDA_StopPoints_CanOvertake = 0      # default overtaking capability [-]
-UDA_StopPoints_RTI_Level = 3        # default RTI level (network-level = 3) [-]
-UDA_StopPoints_DefaultRelPos = 0.49 # default stop relative position factor [-] (used in adjust_Nodes(Visum))
-UDA_StopPoints_GateFlag = 0         # default gate flag - assumed none [-]
+#UDA_StopPoints_StopLength = 15.0    # default stop length [m]
+#UDA_StopPoints_StopType = 0         # default stop type [-]
+#UDA_StopPoints_CanOvertake = 0      # default overtaking capability [-]
+#UDA_StopPoints_RTI_Level = 3        # default RTI level (network-level = 3) [-]
+#UDA_StopPoints_DefaultRelPos = 0.49 # default stop relative position factor [-] (used in adjust_Nodes(Visum))
+#UDA_StopPoints_GateFlag = 0         # default gate flag - assumed none [-]
+UDA_StopAreas_StopLength = 15.0     # default stop length [m]
+UDA_StopAreas_StopType = 0          # default stop type [-]
+UDA_StopAreas_CanOvertake = 0       # default overtaking capability [-]
+UDA_StopAreas_RTI_Level = 3         # default RTI level (network-level = 3) [-]
+UDA_StopAreas_DefaultRelPos = 0.49  # default stop relative position factor [-] (used in adjust_Nodes(Visum))
+UDA_StopAreas_GateFlag = 0          # default gate flag - assumed none [-]
 
 ##### BusMezzo output attribute sets
 
@@ -39,8 +45,12 @@ TYPE_LIST_TURNS = [int, int, int, int, int, int]
 TYPE_LIST_ROUTES = [int, int, int, int, str]
 
 # BusMezzo network input
-ATTR_LIST_STOPPOINTS = ["StopAreaNo", "Name", "BM_StopLinkID", "BM_Position", "BM_Length", "BM_StopType", "BM_CanOvertake",
-                        "DefDwellTime", "BM_RTI_Level", "BM_GateFlag"]
+# update 30-07-2018 - BM {stops} import moved to the StopArea level - StopPoints not necessary anymore
+# ATTR_LIST_STOPPOINTS = ["StopAreaNo", "Name", "BM_StopLinkID", "BM_Position", "BM_Length", "BM_StopType", "BM_CanOvertake",
+#                        "DefDwellTime", "BM_RTI_Level", "BM_GateFlag"]
+
+ATTR_LIST_STOPAREAS = ["No", "Name", "BM_StopLinkID", "BM_Position", "BM_Length", "BM_StopType", "BM_CanOvertake",
+                       "BM_DefDwellTime", "BM_RTI_Level", "BM_GateFlag"]
 ATTR_LIST_LINEROUTES = ["BM_RouteID", "BM_OppositeRouteID", "BM_RouteName", "BM_Start_Node_No", "BM_End_Node_No",
                         "BM_RouteID", "BM_VehType", "BM_HoldingStrategy", "BM_HoldingRatio", "BM_InitialOccupPerStop",
                         "BM_InitialOccupNumStops", "NumStopPoints", "BM_List_Stops", "NumStopPoints", "BM_List_Stops"]
@@ -53,7 +63,8 @@ ATTR_LIST_VEHICLEUNITS = ["No", "Name", "BM_VehLength", "SeatCap", "TotalCap", "
 ATTR_LIST_TRANSITODPAIRS =["FromZone\BM_ZoneID", "ToZone\BM_ZoneID"]
 
 # BusMezzo - output attribute types
-TYPE_LIST_STOPPOINTS = [int, str, int, float, float, int, int, float, int, int]
+# TYPE_LIST_STOPPOINTS = [int, str, int, float, float, int, int, float, int, int]
+TYPE_LIST_STOPAREAS = [int, str, int, float, float, int, int, float, int, int]
 TYPE_LIST_LINEROUTES = [int, int, str, int, int, int, int, int, float, int, int, int, str, int, str]
 TYPE_LIST_TIMEPROFILES_format3 = [int, int, str, int, int, int]
 TYPE_LIST_TIMEPROFILES_format2 = [int, int, str, int, str]

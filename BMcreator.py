@@ -132,7 +132,8 @@ def make_Transit_Network(Visum):
     MAIN_PATH = Visum.GetPath(2)
 
     file = open(MAIN_PATH + '\\transit_network.dat', 'w')
-    addTable(file, "stops",Visum.Net.StopPoints.GetMultipleAttributes(ATTR_LIST_STOPPOINTS, True), TYPE_LIST_STOPPOINTS)
+    # addTable(file, "stops",Visum.Net.StopPoints.GetMultipleAttributes(ATTR_LIST_STOPPOINTS, True), TYPE_LIST_STOPPOINTS)
+    addTable(file, "stops",Visum.Net.StopAreas.GetMultipleAttributes(ATTR_LIST_STOPAREAS, True), TYPE_LIST_STOPAREAS)
 
     # STOPS_DISTANCES{...} - list export and processing steps:
 
@@ -166,9 +167,9 @@ def make_Transit_Network(Visum):
             toAdd.append([r[1], r[2]])
             out_list[r[0]] = [[r[0], from_stops.count(r[0]), toAdd[0]]]
 
-    ATTR_LIST_STOPAREAS = out_list.values()
+    ATTR_LIST_STOPTRANSFERS = out_list.values()
     # quick-fix -  remove outer brackets
-    ATTR_LIST_STOPAREAS = [i[0] for i in ATTR_LIST_STOPAREAS]
+    ATTR_LIST_STOPTRANSFERS = [i[0] for i in ATTR_LIST_STOPTRANSFERS]
 
     ### 2. ORIGIN/DESTINATION TRANSFERS - map Connectors(Zone<=>Stop) into additional walking links
 
@@ -205,7 +206,7 @@ def make_Transit_Network(Visum):
 
     ### 3. MERGE STOP-TRANSFER LISTS
 
-    input_stop_transfers_list = ATTR_LIST_STOPAREAS
+    input_stop_transfers_list = ATTR_LIST_STOPTRANSFERS
     input_stop_transfers_list.extend(ATTR_LIST_CONNECTORS)
     origin_set = sorted(set([origin[0] for origin in input_stop_transfers_list]))
     output_stop_transfers_list = [[row, 0] for row in np.array(origin_set)]

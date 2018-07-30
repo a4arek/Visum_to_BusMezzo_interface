@@ -687,7 +687,7 @@ def adjust_StopPoints(Visum):
         sp_relpos = sp.AttValue("RelPos")
         sp_position = link_length * sp_relpos
 
-
+        # if empty - set StopPointName
         if sp.AttValue("Name") == "":
             sp_name = "_".join(['stop',str(sp.AttValue("StopAreaNo"))])
             sp.SetAttValue(("Name"),sp_name)
@@ -695,6 +695,33 @@ def adjust_StopPoints(Visum):
         sp.SetAttValue("BM_StopLinkID", sp_link_id)
         sp.SetAttValue("BM_Position", sp_position)
 
+        Iterator.Next()
+
+def adjust_StopAreas(Visum):
+
+    #BM {stops} - transfer attributes from the reference StopPoint of this StopArea
+    # (LinkID, RelativePosition)
+    Iterator = Visum.Net.StopAreas.Iterator
+
+    while Iterator.Valid:
+
+        sa = Iterator.Item
+        sa_no = sa.AttValue("No")
+
+        # find reference StopPoint:
+        try:
+            # (1.) StopPoint of the same [No]
+            ref_sp = Visum.Net.StopPoints.ItemByKey(sa_no)
+        except:
+            # or else - (2.) first StopPoint of this StopArea
+            sp_list = sa.StopPoints.GetMultiAttValues("No")
+            conv_sp_list = convert_ConcatenatedMultiAttValues(sp_list)
+            ref_sp = conv_sp_list[0]
+
+        # transfer attributes to the StopArea
+        sa.SetAttValue("BM_StopLinkID", ref_sp.AttValue("BM_StopLinkID"))
+        sa.SetAttValue("BM_Position", ref_sp.AttValue("BM_Position"))
+        sa.SetAttValue("BM_DefDwellTime", ref_sp.AttValue("DefDwellTime"))
 
         Iterator.Next()
 
@@ -833,11 +860,24 @@ def addUDAs_StopPoints(Visum):
 
     addUDAs(obj,"BM_StopLinkID",[1,0,0,0,0,0])
     addUDAs(obj,"BM_Position",[2,1,0,0,0,0])
-    addUDAs(obj,"BM_Length",[2,1,0,0,0,UDA_StopPoints_StopLength])
-    addUDAs(obj,"BM_StopType",[2,1,0,0,0,UDA_StopPoints_StopType])
-    addUDAs(obj,"BM_CanOvertake",[2,1,0,0,0,UDA_StopPoints_CanOvertake])
-    addUDAs(obj,"BM_RTI_Level",[2,1,0,0,0,UDA_StopPoints_RTI_Level])
-    addUDAs(obj,"BM_GateFlag",[2,1,0,0,0,UDA_StopPoints_GateFlag])
+    #addUDAs(obj,"BM_Length",[2,1,0,0,0,UDA_StopPoints_StopLength])
+    #addUDAs(obj,"BM_StopType",[2,1,0,0,0,UDA_StopPoints_StopType])
+    #addUDAs(obj,"BM_CanOvertake",[2,1,0,0,0,UDA_StopPoints_CanOvertake])
+    #addUDAs(obj,"BM_RTI_Level",[2,1,0,0,0,UDA_StopPoints_RTI_Level])
+    #addUDAs(obj,"BM_GateFlag",[2,1,0,0,0,UDA_StopPoints_GateFlag])
+
+def addUDAs_StopAreas(Visum):
+
+    obj = Visum.Net.StopAreas
+
+    addUDAs(obj,"BM_StopLinkID",[1,0,0,0,0,0])
+    addUDAs(obj,"BM_Position",[2,1,0,0,0,0])
+    addUDAs(obj,"BM_DefDwellTime",[2,1,0,0,0,0])
+    addUDAs(obj,"BM_Length",[2,1,0,0,0,UDA_StopAreas_StopLength])
+    addUDAs(obj,"BM_StopType",[2,1,0,0,0,UDA_StopAreas_StopType])
+    addUDAs(obj,"BM_CanOvertake",[2,1,0,0,0,UDA_StopAreas_CanOvertake])
+    addUDAs(obj,"BM_RTI_Level",[2,1,0,0,0,UDA_StopAreas_RTI_Level])
+    addUDAs(obj,"BM_GateFlag",[2,1,0,0,0,UDA_StopAreas_GateFlag])
 
 if __name__ == "__main__":
     import sys, os, win32com.client
