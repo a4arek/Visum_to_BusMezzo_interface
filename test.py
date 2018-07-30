@@ -10,13 +10,13 @@ if __name__ == "__main__":
         MAIN_PATH = Visum.GetPath(2)
     else:
         # standalone
-        MAIN_PATH = os.path.join(os.getcwd(),"test\\Krakow_test_I_obw\\")
+        MAIN_PATH = os.path.join(os.getcwd(),"test\\Krakow_PuT_network_2018\\")
         #Visum = win32com.client.Dispatch('Visum.Visum')
-        #Visum.LoadVersion(os.path.join(MAIN_PATH,"KRK_test1.ver"))
+        #Visum.LoadVersion(os.path.join(MAIN_PATH,"KRK_PuT_network_2018.ver"))
         #Visum.SetPath(2,MAIN_PATH)
-    #Visum.Graphic.StopDrawing = True
-    #main(Visum)
-    #Visum.Graphic.StopDrawing = False
+    Visum.Graphic.StopDrawing = True
+    main(Visum)
+    Visum.Graphic.StopDrawing = False
 
     for file in os.listdir(MAIN_PATH):
         if file.endswith(".dat"):

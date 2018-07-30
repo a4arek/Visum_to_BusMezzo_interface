@@ -486,16 +486,20 @@ def adjust_LineRoutes(Visum):
         # BACK TO THE LINE ROUTE:
 
         # find start node
-        second_node = node_list[1][1]
-        if second_node is None:             # exception handler
-            second_node = node_list[2][1]
+        o_id = 1
+        second_node = node_list[o_id][1]
+        while second_node is None:             # exception handler
+            o_id += 1
+            second_node = node_list[o_id][1]
         first_link = link_list[1][1]
         start_node = Visum.Net.Links.ItemByLinkNrFromNode(first_link,second_node).AttValue("ToNodeNo")
 
         # find end node
-        last_node = node_list[len(node_list)-2][1]
-        if last_node is None:               # exception handler
-            last_node = node_list[len(node_list)-3][1]
+        d_id = 2
+        last_node = node_list[len(node_list)-d_id][1]
+        while last_node is None:               # exception handler
+            d_id += 1
+            last_node = node_list[len(node_list)-d_id][1]
         last_link = link_list[len(link_list)-1][1]
         end_node = Visum.Net.Links.ItemByLinkNrFromNode(last_link,last_node).AttValue("ToNodeNo")
 

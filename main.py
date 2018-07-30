@@ -246,10 +246,10 @@ if __name__ == "__main__":
         # standalone
         MAIN_PATH = os.getcwd()
         #MAIN_PATH = "E:\BM"
-        MAIN_PATH = MAIN_PATH+"\\test\\Krakow_test_I_obw\\"
+        MAIN_PATH = MAIN_PATH+"\\test\\Krakow_PuT_network_2018\\"
         Visum = win32com.client.Dispatch('Visum.Visum')
-        Visum.LoadVersion(MAIN_PATH+"KRK_test1.ver")
+        Visum.LoadVersion(MAIN_PATH+"Krakow_PuT_network_2018.ver")
         Visum.SetPath(2, MAIN_PATH)
-    # Visum.Graphic.StopDrawing = True
+    Visum.Graphic.StopDrawing = True
     main(Visum)
-    # Visum.Graphic.StopDrawing = False
+    Visum.Graphic.StopDrawing = False
