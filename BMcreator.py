@@ -30,6 +30,7 @@ def make_Demand(Visum):
     file.write("od_pairs: " + str(len(ATTR_LIST_ODPAIRS)) + LINE_NEW)
     file.write("scale: 1.0" + LINE_NEW)
     addTable(file,"",ATTR_LIST_ODPAIRS, TYPE_LIST_ODPAIRS)
+    file.write("slices: 0" + LINE_NEW)
     file.close()
 
 def make_Hist_Times(Visum):
