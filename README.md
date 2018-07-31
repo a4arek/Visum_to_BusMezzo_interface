@@ -50,7 +50,7 @@ BusMezzo files (.dat) will be created in the folder with you
 - BusMezzo {stops} will be imported from the STOPAREA level - therefore, each STOPPOINT should be preferably assigned
   to an individual STOPAREA (actually - that's highly recommended, otherwise BusMezzo network might not work properly).
 - STOPPOINTS in Visum should be defined as directed, on LINKS.
-- Important!! Separate STOPPOINTS are always required for PuT LINEROUTES which either:
+- Important!! Separate STOPPOINTS/STOPAREAS are always required for PuT LINEROUTES which either:
   commence from / pass through / or terminate at that particular STOP!
 - (E.g. Several LINEROUTES commencing from a given STOP can depart from the same STOPPOINT, but this S.P. should
   always be separated from the STOPPOINT served by LINEROUTES which pass through that STOP.)

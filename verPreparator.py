@@ -576,8 +576,14 @@ def adjust_TimeProfiles(Visum):
         no_of_tp_segments = len(tp_list)
         add_tp_list = calc_BM_list_of_elements(tp_list)             # converted to string
 
+        # UPDATE 30-07-2018 - simulation start time offset now refers to supply conditions (VehJourneys),
+        # not demand specs anymore (TimeSeries)
         # first dispatch time of each line
-        sim_start_time_offset = Visum.Net.TimeSeriesCont.ItemByKey(1).AttValue("StartTime")
+        veh_deps_list = [trip[1] for trip in Visum.Net.VehicleJourneys.GetMultiAttValues("Dep")]
+        first_network_dep = min(veh_deps_list)
+        sim_start_time_offset = 1800 * int(first_network_dep/1800.0)
+
+        # DISABLED: sim_start_time_offset = Visum.Net.TimeSeriesCont.ItemByKey(1).AttValue("StartTime")
 
         try:
             dep_times_all = [i[1] for i in tp.VehJourneys.GetMultiAttValues("Dep")]
