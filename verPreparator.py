@@ -475,10 +475,12 @@ def adjust_LineRoutes(Visum):
         tp = Visum.Net.TimeProfiles.ItemByKey(ln, dir, lrn, '1')
         veh_type = tp.AttValue("VehCombNo")
 
-        stop_list = Iterator.Item.LineRouteItems.GetMultiAttValues("StopPoint\StopAreaNo")  # updated 28-05-2018
         link_list = Iterator.Item.LineRouteItems.GetMultiAttValues("InLink\No")
         from_node_list = Iterator.Item.LineRouteItems.GetMultiAttValues("InLink\FromNodeNo")
         node_list = Iterator.Item.LineRouteItems.GetMultiAttValues("NodeNo")
+
+        # UPDATE 21-08-2018 - StopPoint list must be imported from TimeProfileItems, to account for skipped stops!
+        stop_list = tp.TimeProfileItems.GetMultiAttValues("LineRouteItem\StopPoint\StopAreaNo")  # updated 21-08-2018
 
         line_course = Iterator.Item.LineRouteItems.GetMultiAttValues("InLink\BM_LinkID")
 
